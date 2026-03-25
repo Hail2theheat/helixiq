@@ -533,69 +533,74 @@ app.post(
     // 23andMe files are ~250MB uncompressed; we sample key sections
     const truncatedDna = dnaContent.slice(0, 200000);
 
-    try {
-      // Generate report via Claude API
-      const aiResponse = await anthropic.messages.create({
-        model: "claude-opus-4-5",
-        max_tokens: 8000,
-        system: getSystemPrompt(packageKey),
-        messages: [
-          {
-            role: "user",
-            content: `Here is the raw DNA data file. Please analyze it and generate the full report.\n\n---BEGIN DNA DATA---\n${truncatedDna}\n---END DNA DATA---`,
-          },
-        ],
-      });
+    // Respond immediately — report will be emailed in the background
+    res.json({
+      success: true,
+      message: 'Your report is being generated and will be emailed to you within 5 minutes.',
+    });
 
-      // Generate PDF
-      const pdfBuffer = await generatePDF(
-        aiResponse.content[0].text,
-        PACKAGES[packageKey].name,
-        customerEmail,
-        packageKey
-      );
+    // Process report generation asynchronously
+    (async () => {
+      try {
+        // Generate report via Claude API
+        const aiResponse = await anthropic.messages.create({
+          model: "claude-opus-4-5",
+          max_tokens: 8000,
+          system: getSystemPrompt(packageKey),
+          messages: [
+            {
+              role: "user",
+              content: `Here is the raw DNA data file. Please analyze it and generate the full report.\n\n---BEGIN DNA DATA---\n${truncatedDna}\n---END DNA DATA---`,
+            },
+          ],
+        });
 
-      // Send email with PDF attachment
-      await mailer.sendMail({
-        from: `HelixIQ <${process.env.EMAIL_FROM}>`,
-        to: customerEmail,
-        subject: `Your HelixIQ ${PACKAGES[packageKey].name} Report Is Ready`,
-        html: `
-          <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
-            <h1 style="font-size: 28px; font-weight: 300; border-bottom: 1px solid #c9a84c; padding-bottom: 16px; margin-bottom: 24px;">Your HelixIQ Report</h1>
-            <p style="font-size: 16px; line-height: 1.7; color: #444;">Your <strong>${PACKAGES[packageKey].name}</strong> is attached to this email as a PDF.</p>
-            <p style="font-size: 16px; line-height: 1.7; color: #444;">Thank you for trusting HelixIQ with your genetic data. As a reminder, your raw DNA file was permanently deleted immediately after analysis and is not stored on our servers.</p>
-            <p style="font-size: 13px; color: #888; margin-top: 32px; line-height: 1.6; border-top: 1px solid #eee; padding-top: 20px;">
-              This report is for educational purposes only and does not constitute medical advice. 
-              Please consult a qualified healthcare professional before making health decisions.
-            </p>
-            <p style="font-size: 13px; color: #888;">© 2025 HelixIQ · <a href="${process.env.BASE_URL}/privacy" style="color: #c9a84c;">Privacy Policy</a></p>
-          </div>
-        `,
-        attachments: [
-          {
-            filename: `HelixIQ-${packageKey}-report.pdf`,
-            content: pdfBuffer,
-            contentType: "application/pdf",
-          },
-        ],
-      });
+        // Generate PDF
+        const pdfBuffer = await generatePDF(
+          aiResponse.content[0].text,
+          PACKAGES[packageKey].name,
+          customerEmail,
+          packageKey
+        );
 
-      // Mark order as complete
-      const order = pendingOrders.get(sessionId);
-      if (order) {
-        order.status = "complete";
-        pendingOrders.set(sessionId, order);
+        // Send email with PDF attachment
+        await mailer.sendMail({
+          from: `HelixIQ <${process.env.EMAIL_FROM}>`,
+          to: customerEmail,
+          subject: `Your HelixIQ ${PACKAGES[packageKey].name} Report Is Ready`,
+          html: `
+            <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
+              <h1 style="font-size: 28px; font-weight: 300; border-bottom: 1px solid #c9a84c; padding-bottom: 16px; margin-bottom: 24px;">Your HelixIQ Report</h1>
+              <p style="font-size: 16px; line-height: 1.7; color: #444;">Your <strong>${PACKAGES[packageKey].name}</strong> is attached to this email as a PDF.</p>
+              <p style="font-size: 16px; line-height: 1.7; color: #444;">Thank you for trusting HelixIQ with your genetic data. As a reminder, your raw DNA file was permanently deleted immediately after analysis and is not stored on our servers.</p>
+              <p style="font-size: 13px; color: #888; margin-top: 32px; line-height: 1.6; border-top: 1px solid #eee; padding-top: 20px;">
+                This report is for educational purposes only and does not constitute medical advice.
+                Please consult a qualified healthcare professional before making health decisions.
+              </p>
+              <p style="font-size: 13px; color: #888;">© 2025 HelixIQ · <a href="${process.env.BASE_URL}/privacy" style="color: #c9a84c;">Privacy Policy</a></p>
+            </div>
+          `,
+          attachments: [
+            {
+              filename: `HelixIQ-${packageKey}-report.pdf`,
+              content: pdfBuffer,
+              contentType: "application/pdf",
+            },
+          ],
+        });
+
+        // Mark order as complete
+        const order = pendingOrders.get(sessionId);
+        if (order) {
+          order.status = "complete";
+          pendingOrders.set(sessionId, order);
+        }
+
+        console.log(`Report delivered to ${customerEmail}`);
+      } catch (err) {
+        console.error("Background report generation error:", err);
       }
-
-      res.json({
-        success: true,
-        message: `Report delivered to ${customerEmail}`,
-      });
-    } catch (err) {
-      console.error("Report generation error:", err);
-      res.status(500).json({ error: "Report generation failed. Please contact support." });
-    }
+    })();
   }
 );
 
