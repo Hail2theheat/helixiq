@@ -542,6 +542,8 @@ app.post(
     // Process report generation asynchronously
     (async () => {
       try {
+        console.log(`[${sessionId}] Starting report generation for ${customerEmail} (${packageKey})`);
+
         // Generate report via Claude API
         const aiResponse = await anthropic.messages.create({
           model: "claude-opus-4-5",
@@ -554,6 +556,7 @@ app.post(
             },
           ],
         });
+        console.log(`[${sessionId}] Claude API call succeeded (${aiResponse.content[0].text.length} chars)`);
 
         // Generate PDF
         const pdfBuffer = await generatePDF(
@@ -562,6 +565,7 @@ app.post(
           customerEmail,
           packageKey
         );
+        console.log(`[${sessionId}] PDF generated (${pdfBuffer.length} bytes)`);
 
         // Send email with PDF attachment
         await mailer.sendMail({
@@ -588,6 +592,7 @@ app.post(
             },
           ],
         });
+        console.log(`[${sessionId}] Email sent to ${customerEmail}`);
 
         // Mark order as complete
         const order = pendingOrders.get(sessionId);
@@ -596,9 +601,10 @@ app.post(
           pendingOrders.set(sessionId, order);
         }
 
-        console.log(`Report delivered to ${customerEmail}`);
+        console.log(`[${sessionId}] Report fully delivered to ${customerEmail}`);
       } catch (err) {
-        console.error("Background report generation error:", err);
+        console.error(`[${sessionId}] Background report generation error:`, err.message);
+        console.error(`[${sessionId}] Full error:`, err);
       }
     })();
   }
