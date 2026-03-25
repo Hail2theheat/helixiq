@@ -403,8 +403,8 @@ app.post("/api/create-checkout", express.json(), async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `https://myhelixiq.com/upload?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://myhelixiq.com/#pricing`,
+      success_url: 'https://myhelixiq.com/upload?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://myhelixiq.com/#pricing',
       metadata: { packageKey },
       billing_address_collection: "auto",
     });
