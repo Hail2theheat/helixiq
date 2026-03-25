@@ -393,7 +393,6 @@ app.post("/api/create-checkout", express.json(), async (req, res) => {
           product_data: {
             name: `HelixIQ — ${pkg.name}`,
             description: pkg.description,
-            images: [`${process.env.BASE_URL}/images/logo-og.png`],
           },
           unit_amount: pkg.price,
         },
