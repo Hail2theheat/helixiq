@@ -24,11 +24,11 @@ import { generatePDF } from "./pdf-generator.js";
 import dotenv from "dotenv";
 import crypto from "crypto";
 import path from "path";
-import fs from "fs";
+import fs, { existsSync } from "fs";
 import { fileURLToPath } from "url";
 import { createServer } from "http";
 
-dotenv.config();
+if (existsSync('.env')) { dotenv.config(); }
 
 // ── Catch silent crashes ────────────────────────────────────────
 process.on("uncaughtException", (err) => {
