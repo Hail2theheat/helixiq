@@ -536,7 +536,7 @@ app.post(
     // Respond immediately — report will be emailed in the background
     res.json({
       success: true,
-      message: 'Your report is being generated and will be emailed to you within 5 minutes.',
+      message: 'Your report is being generated and will be emailed to you within 5 minutes. Your raw DNA file has been permanently deleted from our servers and will never be stored, sold, or shared. We have zero access to it after this moment.',
     });
 
     // Process report generation asynchronously
@@ -675,7 +675,7 @@ app.get("/upload", (req, res) => {
 
   <div class="status" id="status"></div>
 
-  <div class="privacy-note">🔒 Your raw DNA file is permanently deleted immediately after analysis. We never store or share your genetic data.</div>
+  <div class="privacy-note">🔒 Your raw DNA file is permanently deleted from our servers the moment your report is sent. We never store, sell, share, or profit from your genetic data in any way. Once this page confirms delivery, it is gone forever.</div>
 </div>
 
 <script>
