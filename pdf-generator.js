@@ -4,20 +4,8 @@
 // Usage: generatePDF(reportJSON, packageName, email, packageKey)
 // Returns: Promise<Buffer>
 // ============================================================
-// Place the fonts/ folder in the same directory as this file.
-// fonts/ must contain:
-//   Gloock-Regular.ttf, CrimsonPro-Regular.ttf, CrimsonPro-Bold.ttf,
-//   CrimsonPro-Italic.ttf, InstrumentSans-Regular.ttf, InstrumentSans-Bold.ttf,
-//   IBMPlexMono-Regular.ttf, IBMPlexMono-Bold.ttf,
-//   Lora-Regular.ttf, Lora-Bold.ttf, Lora-Italic.ttf
-// ============================================================
 
 import PDFDocument from "pdfkit";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const FONT_DIR  = path.join(__dirname, "fonts");
 
 // ── PALETTE ──────────────────────────────────────────────────
 const C = {
@@ -116,13 +104,13 @@ function text(doc, str, x, y, font, size, color, { alpha = 1, maxW = null } = {}
 
 // Measure string width
 function strW(doc, str, font, size) {
-  return doc.widthOfString(str, { font: path.join(FONT_DIR, font + ".ttf"), fontSize: size });
+  return doc.widthOfString(str, { font, fontSize: size });
 }
 
 // Label caps with manual tracking
 function labelCaps(doc, str, x, y, color = C.gold, alpha = 0.75) {
   str = (str || "").toUpperCase().replace(/—/g, "");
-  doc.save().font(path.join(FONT_DIR, "InstrumentSans-Bold.ttf")).fontSize(7)
+  doc.save().font("Helvetica-Bold").fontSize(7)
     .fillColor(color).opacity(alpha);
   let cx = x;
   for (const ch of str) {
@@ -133,8 +121,8 @@ function labelCaps(doc, str, x, y, color = C.gold, alpha = 0.75) {
 }
 
 // Draw a rounded pill badge. Returns pill width.
-function pill(doc, x, y, label, bg, fg, { font = "InstrumentSans-Bold", size = 7 } = {}) {
-  const fontPath = path.join(FONT_DIR, font + ".ttf");
+function pill(doc, x, y, label, bg, fg, { font = "Helvetica-Bold", size = 7 } = {}) {
+  const fontPath = font;
   const tw = doc.widthOfString(label, { font: fontPath, fontSize: size }) + 14;
   const ph = 16;
   doc.save()
@@ -148,7 +136,7 @@ function pill(doc, x, y, label, bg, fg, { font = "InstrumentSans-Bold", size = 7
 // Wrap text into lines that fit maxW
 function wrapText(doc, str, font, size, maxW) {
   str = (str || "").replace(/ — /g, ", ").replace(/—/g, ",");
-  const fontPath = path.join(FONT_DIR, font + ".ttf");
+  const fontPath = font;
   const words = str.split(" ");
   const lines = [];
   let cur = [];
@@ -179,7 +167,7 @@ function insightCard(doc, y, item, type, accentColor, bgColor) {
   doc.rect(ML, y - cardH, 3, cardH).fill(stripeColor);
 
   // Ghost number
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(26)
+  doc.save().font("Helvetica-Bold").fontSize(26)
     .fillColor(accentColor).opacity(0.09)
     .text(String(item._index + 1), W - MR - 26, y - cardH + 12, { lineBreak: false })
     .restore();
@@ -192,13 +180,13 @@ function insightCard(doc, y, item, type, accentColor, bgColor) {
   const genePillBg = type === "win" ? "#0d2a1a" : C.amberBg;
   const genePillFg = type === "win" ? C.greenT : C.amberT;
   tagX += pill(doc, tagX, tagY - 12, item.gene || "", genePillBg, genePillFg,
-    { font: "IBMPlexMono-Regular", size: 8 });
+    { font: "Courier", size: 8 });
 
   if (type === "win") {
     const rs = RARITY_STYLE[item.rarity] || RARITY_STYLE["Common"];
     tagX += pill(doc, tagX, tagY - 12, rs.label, rs.bg, rs.fg);
     if (item.rarity_pct) {
-      doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(7.5)
+      doc.save().font("Helvetica").fontSize(7.5)
         .fillColor(C.muted).opacity(1)
         .text(item.rarity_pct, tagX, tagY - 9, { lineBreak: false })
         .restore();
@@ -212,9 +200,9 @@ function insightCard(doc, y, item, type, accentColor, bgColor) {
     tagX += rarW;
     if (item.rarity_pct) {
       const noteW = doc.widthOfString(item.rarity_pct,
-        { font: path.join(FONT_DIR, "InstrumentSans-Regular.ttf"), fontSize: 7.5 });
+        { font: "Helvetica", fontSize: 7.5 });
       if (tagX + noteW < W - MR - 20) {
-        doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(7.5)
+        doc.save().font("Helvetica").fontSize(7.5)
           .fillColor(C.muted).opacity(1)
           .text(item.rarity_pct, tagX, tagY - 9, { lineBreak: false })
           .restore();
@@ -223,14 +211,14 @@ function insightCard(doc, y, item, type, accentColor, bgColor) {
   }
 
   // Title
-  doc.save().font(path.join(FONT_DIR, "Lora-Bold.ttf")).fontSize(12.5)
+  doc.save().font("Helvetica-Bold").fontSize(12.5)
     .fillColor(C.paper).opacity(1)
     .text(item.title || "", ML + 14, y - 42, { lineBreak: false })
     .restore();
 
   // Insight lines
-  const insightLines = wrapText(doc, item.insight || "", "InstrumentSans-Regular", 9, CW - 36);
-  doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(9)
+  const insightLines = wrapText(doc, item.insight || "", "Helvetica", 9, CW - 36);
+  doc.save().font("Helvetica").fontSize(9)
     .fillColor(C.paper).opacity(0.56);
   insightLines.slice(0, 2).forEach((ln, j) => {
     doc.text(ln, ML + 14, y - 60 - j * 13, { lineBreak: false });
@@ -238,8 +226,8 @@ function insightCard(doc, y, item, type, accentColor, bgColor) {
   doc.restore();
 
   // Action
-  const actionLines = wrapText(doc, item.action || "", "InstrumentSans-Bold", 9, CW - 36);
-  doc.save().font(path.join(FONT_DIR, "InstrumentSans-Bold.ttf")).fontSize(9)
+  const actionLines = wrapText(doc, item.action || "", "Helvetica-Bold", 9, CW - 36);
+  doc.save().font("Helvetica-Bold").fontSize(9)
     .fillColor(accentColor).opacity(1)
     .text("> " + (actionLines[0] || ""), ML + 14, y - cardH + 14, { lineBreak: false })
     .restore();
@@ -287,7 +275,7 @@ function pageCover(doc, data, packageName, email) {
   doc.rect(0, H - 1.5, W, 1.5).fill(C.gold);
 
   // Logo
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(12)
+  doc.save().font("Helvetica-Bold").fontSize(12)
     .fillColor(C.gold).opacity(0.75)
     .text("HelixIQ", ML, H - 44, { lineBreak: false }).restore();
   labelCaps(doc, packageName, ML, H - 62, C.gold, 0.45);
@@ -295,10 +283,10 @@ function pageCover(doc, data, packageName, email) {
 
   // Headline
   const hs = H - 108, lg = 54;
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(46).fillColor(C.paper).opacity(1)
+  doc.save().font("Helvetica-Bold").fontSize(46).fillColor(C.paper).opacity(1)
     .text("Your genome has", ML, hs - 46, { lineBreak: false })
     .text("a few things to", ML, hs - 46 - lg, { lineBreak: false });
-  doc.font(path.join(FONT_DIR, "Lora-Italic.ttf")).fontSize(46).fillColor(C.gold)
+  doc.font("Helvetica-Oblique").fontSize(46).fillColor(C.gold)
     .text("say about you.", ML, hs - 46 - lg * 2, { lineBreak: false });
   doc.restore();
   goldRule(doc, hs - lg * 2 - 18, { alpha: 0.16, x2: ML + 310 });
@@ -316,9 +304,9 @@ function pageCover(doc, data, packageName, email) {
     if (i > 0) {
       doc.save().rect(sx - 10, statY - 36, 1, 50).fill(C.gold).opacity(0.12).restore();
     }
-    doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(30)
+    doc.save().font("Helvetica-Bold").fontSize(30)
       .fillColor(C.gold).opacity(0.9).text(num, sx, statY - 30, { lineBreak: false }).restore();
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(8.5)
+    doc.save().font("Helvetica").fontSize(8.5)
       .fillColor(C.paper).opacity(0.40)
       .text(l1, sx, statY - 18, { lineBreak: false })
       .text(l2, sx, statY - 31, { lineBreak: false }).restore();
@@ -329,8 +317,8 @@ function pageCover(doc, data, packageName, email) {
   // Intro paragraph
   const introY = statY - 68;
   const intro = "Your genome contains over 700,000 data points. Most DNA services show you fewer than 50. This report translates the raw variants that actually shape how you absorb nutrients, process supplements, and respond to food.";
-  const introLines = wrapText(doc, intro, "CrimsonPro-Italic", 12, CW * 0.65);
-  doc.save().font(path.join(FONT_DIR, "CrimsonPro-Italic.ttf")).fontSize(12)
+  const introLines = wrapText(doc, intro, "Helvetica-Oblique", 12, CW * 0.65);
+  doc.save().font("Helvetica-Oblique").fontSize(12)
     .fillColor(C.paper).opacity(0.50);
   introLines.forEach((ln, i) => {
     doc.text(ln, ML, introY - 12 - i * 17, { lineBreak: false });
@@ -363,10 +351,10 @@ function pageCover(doc, data, packageName, email) {
 
     if (icon === "five") {
       // Ghost large 5
-      doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(32)
+      doc.save().font("Helvetica-Bold").fontSize(32)
         .fillColor(fg).opacity(0.22).text("5", iconX, iconY - 28, { lineBreak: false }).restore();
       // Solid small 5
-      doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(18)
+      doc.save().font("Helvetica-Bold").fontSize(18)
         .fillColor(fg).opacity(1).text("5", iconX + 1, iconY - 14, { lineBreak: false }).restore();
     } else if (icon === "pill") {
       const pw = 26, ph = 13;
@@ -389,19 +377,19 @@ function pageCover(doc, data, packageName, email) {
     }
 
     // Title
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Bold.ttf")).fontSize(9)
+    doc.save().font("Helvetica-Bold").fontSize(9)
       .fillColor(C.paper).opacity(0.88)
       .text(title, ix + 10, iy - itemH + 36, { lineBreak: false }).restore();
 
     // Sub lines in accent color
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(7.5)
+    doc.save().font("Helvetica").fontSize(7.5)
       .fillColor(fg).opacity(0.62)
       .text(sub1, ix + 10, iy - itemH + 22, { lineBreak: false })
       .text(sub2, ix + 10, iy - itemH + 11, { lineBreak: false }).restore();
   });
 
   goldRule(doc, cardsTop - itemH - 10, { alpha: 0.10 });
-  doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(8)
+  doc.save().font("Helvetica").fontSize(8)
     .fillColor(C.paper).opacity(0.20)
     .text(`Prepared for ${email}   .   myhelixiq.com`, ML, cardsTop - itemH - 26, { lineBreak: false })
     .restore();
@@ -416,7 +404,7 @@ function pageWins(doc, wins) {
   doc.rect(0, H - 81, W, 2).fill(C.green);
 
   labelCaps(doc, "01   Your Genetic Advantages", ML, H - 28, C.greenT);
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(28)
+  doc.save().font("Helvetica-Bold").fontSize(28)
     .fillColor(C.paper).opacity(1)
     .text("Top 5 Things Working in Your Favor", ML, H - 62, { lineBreak: false }).restore();
 
@@ -441,11 +429,11 @@ function pageRisks(doc, risks) {
   doc.rect(0, H - 81, W, 2).fill(C.amber);
 
   labelCaps(doc, "02   Areas Worth Your Focus", ML, H - 28, C.amberT);
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(28)
+  doc.save().font("Helvetica-Bold").fontSize(28)
     .fillColor(C.paper).opacity(1)
     .text("Top 5 Things to Address", ML, H - 62, { lineBreak: false }).restore();
 
-  doc.save().font(path.join(FONT_DIR, "CrimsonPro-Italic.ttf")).fontSize(11)
+  doc.save().font("Helvetica-Oblique").fontSize(11)
     .fillColor(C.amberT).opacity(0.6)
     .text("Not predictions. Places where small, deliberate changes produce outsized results.",
       ML, H - 88, { lineBreak: false }).restore();
@@ -471,12 +459,12 @@ function pageSupplements(doc, supplements) {
   goldRule(doc, H - 78, { alpha: 0.3 });
 
   labelCaps(doc, "03   Your Protocol", ML, H - 26);
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(26)
+  doc.save().font("Helvetica-Bold").fontSize(26)
     .fillColor(C.paper).opacity(1)
     .text("Genome-Based Supplement Stack", ML, H - 58, { lineBreak: false }).restore();
 
   // Priority dots legend
-  doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(8)
+  doc.save().font("Helvetica").fontSize(8)
     .fillColor(C.paper).opacity(0.35)
     .text("Priority:  \u25cf\u25cf\u25cf  Essential   \u25cf\u25cf\u25cb  Recommended",
       W - MR - 200, H - 30, { lineBreak: false }).restore();
@@ -497,18 +485,18 @@ function pageSupplements(doc, supplements) {
     }
 
     // Name
-    doc.save().font(path.join(FONT_DIR, "Lora-Bold.ttf")).fontSize(13)
+    doc.save().font("Helvetica-Bold").fontSize(13)
       .fillColor(C.paper).opacity(1)
       .text(s.name, ML + 54, y - 16, { lineBreak: false }).restore();
 
     // Dose
-    doc.save().font(path.join(FONT_DIR, "IBMPlexMono-Regular.ttf")).fontSize(8)
+    doc.save().font("Courier").fontSize(8)
       .fillColor(C.gold).opacity(0.85)
       .text(s.dose, ML + 54, y - 30, { lineBreak: false }).restore();
 
     // Why text (grey)
-    const whyLines = wrapText(doc, s.why, "InstrumentSans-Regular", 8, CW - 72);
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(8)
+    const whyLines = wrapText(doc, s.why, "Helvetica", 8, CW - 72);
+    doc.save().font("Helvetica").fontSize(8)
       .fillColor(C.paper).opacity(0.42);
     whyLines.slice(0, 2).forEach((ln, j) => {
       doc.text(ln, ML + 54, y - 44 - j * 12, { lineBreak: false });
@@ -519,28 +507,28 @@ function pageSupplements(doc, supplements) {
     // Green form badge
     const formText = s.form;
     const formW = Math.min(doc.widthOfString(formText,
-      { font: path.join(FONT_DIR, "InstrumentSans-Regular.ttf"), fontSize: 8.5 }) + 16, CW - 68);
+      { font: "Helvetica", fontSize: 8.5 }) + 16, CW - 68);
     const greenY = whyBottom - 18;
     doc.roundedRect(ML + 54, greenY, formW, 15, 3).fill(C.greenBg);
     doc.save().roundedRect(ML + 54, greenY, formW, 15, 3)
       .strokeColor(C.green).lineWidth(0.5).opacity(0.35).stroke().restore();
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(8.5)
+    doc.save().font("Helvetica").fontSize(8.5)
       .fillColor(C.greenT).opacity(1)
       .text(formText.slice(0, 60), ML + 62, greenY + 4, { lineBreak: false }).restore();
 
     // Red warning badge
-    const warnLines = wrapText(doc, s.warning, "InstrumentSans-Regular", 8, CW - 72);
+    const warnLines = wrapText(doc, s.warning, "Helvetica", 8, CW - 72);
     const warnText = warnLines[0] || "";
     const warnW = Math.min(doc.widthOfString(warnText,
-      { font: path.join(FONT_DIR, "InstrumentSans-Regular.ttf"), fontSize: 8 }) + 28, CW - 68);
+      { font: "Helvetica", fontSize: 8 }) + 28, CW - 68);
     const redY = greenY - 22;
     doc.roundedRect(ML + 54, redY, warnW, 15, 3).fill(C.redBg);
     doc.save().roundedRect(ML + 54, redY, warnW, 15, 3)
       .strokeColor(C.red).lineWidth(0.5).opacity(0.3).stroke().restore();
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Bold.ttf")).fontSize(8)
+    doc.save().font("Helvetica-Bold").fontSize(8)
       .fillColor(C.redT).opacity(1)
       .text("!", ML + 62, redY + 4, { lineBreak: false }).restore();
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(8)
+    doc.save().font("Helvetica").fontSize(8)
       .fillColor(C.redT).opacity(1)
       .text(warnText.slice(0, 70), ML + 74, redY + 4, { lineBreak: false }).restore();
 
@@ -560,11 +548,11 @@ function pageShopping(doc, shoppingTips) {
   doc.rect(0, H - 79, W, 1.5).fill(C.green);
 
   labelCaps(doc, "04   Buyer's Guide", ML, H - 26, C.greenT);
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(26)
+  doc.save().font("Helvetica-Bold").fontSize(26)
     .fillColor(C.paper).opacity(1)
     .text("How to Shop Without Getting Scammed", ML, H - 58, { lineBreak: false }).restore();
 
-  doc.save().font(path.join(FONT_DIR, "CrimsonPro-Italic.ttf")).fontSize(11.5)
+  doc.save().font("Helvetica-Oblique").fontSize(11.5)
     .fillColor(C.paper).opacity(0.45)
     .text("The supplement industry is largely unregulated. What the label says and what is in the bottle are often different things.",
       ML, H - 88, { lineBreak: false }).restore();
@@ -591,8 +579,8 @@ function pageShopping(doc, shoppingTips) {
     // Centered number
     const numStr = String(i + 1);
     const nw = doc.widthOfString(numStr,
-      { font: path.join(FONT_DIR, "Gloock-Regular.ttf"), fontSize: 20 });
-    doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(20)
+      { font: "Helvetica-Bold", fontSize: 20 });
+    doc.save().font("Helvetica-Bold").fontSize(20)
       .fillColor(ic).opacity(1)
       .text(numStr, ML + 34 - nw / 2, circY - 7, { lineBreak: false }).restore();
 
@@ -600,13 +588,13 @@ function pageShopping(doc, shoppingTips) {
     doc.save().rect(ML, y - cardH, 3, cardH).fill(ic).opacity(0.6).restore();
 
     // Title
-    doc.save().font(path.join(FONT_DIR, "Lora-Bold.ttf")).fontSize(13)
+    doc.save().font("Helvetica-Bold").fontSize(13)
       .fillColor(C.paper).opacity(1)
       .text(tip.flag, ML + 72, y - 28, { lineBreak: false }).restore();
 
     // Body
-    const bodyLines = wrapText(doc, tip.body, "CrimsonPro-Regular", 11.5, CW - 86);
-    doc.save().font(path.join(FONT_DIR, "CrimsonPro-Regular.ttf")).fontSize(11.5)
+    const bodyLines = wrapText(doc, tip.body, "Helvetica", 11.5, CW - 86);
+    doc.save().font("Helvetica").fontSize(11.5)
       .fillColor(C.paper).opacity(0.68);
     bodyLines.slice(0, 4).forEach((ln, j) => {
       doc.text(ln, ML + 72, y - 46 - j * 15, { lineBreak: false });
@@ -618,7 +606,7 @@ function pageShopping(doc, shoppingTips) {
 
   // Certification seals
   goldRule(doc, y - 10, { alpha: 0.1 });
-  doc.save().font(path.join(FONT_DIR, "InstrumentSans-Bold.ttf")).fontSize(8)
+  doc.save().font("Helvetica-Bold").fontSize(8)
     .fillColor(C.gold).opacity(0.6)
     .text("Certification seals to look for:", ML, y - 24, { lineBreak: false }).restore();
 
@@ -626,9 +614,9 @@ function pageShopping(doc, shoppingTips) {
   let sx = ML;
   seals.forEach(seal => {
     const sw = doc.widthOfString(seal,
-      { font: path.join(FONT_DIR, "InstrumentSans-Bold.ttf"), fontSize: 8 }) + 20;
+      { font: "Helvetica-Bold", fontSize: 8 }) + 20;
     doc.roundedRect(sx, y - 48, sw, 18, 3).fill(C.accent);
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Bold.ttf")).fontSize(8)
+    doc.save().font("Helvetica-Bold").fontSize(8)
       .fillColor(C.gold).opacity(1)
       .text(seal, sx + 10, y - 40, { lineBreak: false }).restore();
     sx += sw + 8;
@@ -646,7 +634,7 @@ function pageDiet(doc, diet, doLess) {
   doc.rect(0, H - 79, W, 1.5).fill(C.green);
 
   labelCaps(doc, "05   Dietary Blueprint", ML, H - 26, C.greenT);
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(26)
+  doc.save().font("Helvetica-Bold").fontSize(26)
     .fillColor(C.paper).opacity(1)
     .text("Your Optimal Eating Pattern", ML, H - 58, { lineBreak: false }).restore();
 
@@ -656,12 +644,12 @@ function pageDiet(doc, diet, doLess) {
   const badgeTop = H - 100;
   doc.roundedRect(ML, badgeTop, 220, 24, 4).fill(C.accent);
   doc.rect(ML, badgeTop, 3, 24).fill(C.gold);
-  doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(8.5)
+  doc.save().font("Helvetica").fontSize(8.5)
     .fillColor(C.paper).opacity(0.48)
     .text("Recommended pattern", ML + 12, badgeTop + 8, { lineBreak: false }).restore();
   const rpW = doc.widthOfString("Recommended pattern",
-    { font: path.join(FONT_DIR, "InstrumentSans-Regular.ttf"), fontSize: 8.5 });
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(14)
+    { font: "Helvetica", fontSize: 8.5 });
+  doc.save().font("Helvetica-Bold").fontSize(14)
     .fillColor(C.gold).opacity(1)
     .text(diet.pattern || "Mediterranean", ML + 12 + rpW + 8, badgeTop + 7, { lineBreak: false }).restore();
 
@@ -693,19 +681,19 @@ function pageDiet(doc, diet, doLess) {
 
     // Title centered
     const titleW = doc.widthOfString(item.title,
-      { font: path.join(FONT_DIR, "Lora-Bold.ttf"), fontSize: 11 });
-    doc.save().font(path.join(FONT_DIR, "Lora-Bold.ttf")).fontSize(11)
+      { font: "Helvetica-Bold", fontSize: 11 });
+    doc.save().font("Helvetica-Bold").fontSize(11)
       .fillColor(C.paper).opacity(1)
       .text(item.title, cx + (cw3 - titleW) / 2, top - 58, { lineBreak: false }).restore();
 
     const subW = doc.widthOfString(item.sub,
-      { font: path.join(FONT_DIR, "InstrumentSans-Bold.ttf"), fontSize: 8 });
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Bold.ttf")).fontSize(8)
+      { font: "Helvetica-Bold", fontSize: 8 });
+    doc.save().font("Helvetica-Bold").fontSize(8)
       .fillColor(ICON_COLORS[i]).opacity(1)
       .text(item.sub, cx + (cw3 - subW) / 2, top - 72, { lineBreak: false }).restore();
 
-    const bodyLines = wrapText(doc, item.body, "InstrumentSans-Regular", 8, cw3 - 18);
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(8)
+    const bodyLines = wrapText(doc, item.body, "Helvetica", 8, cw3 - 18);
+    doc.save().font("Helvetica").fontSize(8)
       .fillColor(C.paper).opacity(0.6);
     bodyLines.slice(0, 5).forEach((ln, j) => {
       doc.text(ln, cx + 9, top - 88 - j * 12, { lineBreak: false });
@@ -725,15 +713,15 @@ function pageDiet(doc, diet, doLess) {
     doc.save().circle(icx, icy, 20).fill(ICON_BGS[3 + i]).restore();
     drawFoodIcon(doc, ICONS[3 + i], icx, icy, 11, ICON_COLORS[3 + i]);
 
-    doc.save().font(path.join(FONT_DIR, "Lora-Bold.ttf")).fontSize(12)
+    doc.save().font("Helvetica-Bold").fontSize(12)
       .fillColor(C.paper).opacity(1)
       .text(item.title, cx + 58, top - 24, { lineBreak: false }).restore();
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Bold.ttf")).fontSize(8)
+    doc.save().font("Helvetica-Bold").fontSize(8)
       .fillColor(ICON_COLORS[3 + i]).opacity(1)
       .text(item.sub, cx + 58, top - 38, { lineBreak: false }).restore();
 
-    const bodyLines = wrapText(doc, item.body, "InstrumentSans-Regular", 8.5, cw2 - 24);
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(8.5)
+    const bodyLines = wrapText(doc, item.body, "Helvetica", 8.5, cw2 - 24);
+    doc.save().font("Helvetica").fontSize(8.5)
       .fillColor(C.paper).opacity(0.6);
     bodyLines.slice(0, 5).forEach((ln, j) => {
       doc.text(ln, cx + 14, top - 56 - j * 13, { lineBreak: false });
@@ -750,11 +738,11 @@ function pageDiet(doc, diet, doLess) {
   const colW2 = (CW - 28) / 3;
   doLess.forEach(([title, body], i) => {
     const cx2 = ML + 14 + i * (colW2 + 4);
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Bold.ttf")).fontSize(9)
+    doc.save().font("Helvetica-Bold").fontSize(9)
       .fillColor(C.amberT).opacity(1)
       .text(title, cx2, stripY - 30, { lineBreak: false }).restore();
-    const bl = wrapText(doc, body, "InstrumentSans-Regular", 7.5, colW2 - 4);
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(7.5)
+    const bl = wrapText(doc, body, "Helvetica", 7.5, colW2 - 4);
+    doc.save().font("Helvetica").fontSize(7.5)
       .fillColor(C.paper).opacity(0.5);
     bl.slice(0, 2).forEach((ln, j) => {
       doc.text(ln, cx2, stripY - 42 - j * 11, { lineBreak: false });
@@ -809,25 +797,25 @@ function pageFamily(doc, family) {
   goldRule(doc, H - 78, { alpha: 0.3 });
 
   labelCaps(doc, "06   The People in Your Life", ML, H - 26);
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(26)
+  doc.save().font("Helvetica-Bold").fontSize(26)
     .fillColor(C.paper).opacity(1)
     .text("What Your Loved Ones Should Know", ML, H - 58, { lineBreak: false }).restore();
   goldRule(doc, H - 86, { alpha: 0.1 });
 
   // Partner card — auto-sized
-  const partnerLines = wrapText(doc, family.partner, "CrimsonPro-Regular", 12, CW - 32);
+  const partnerLines = wrapText(doc, family.partner, "Helvetica", 12, CW - 32);
   const partnerH = partnerLines.length * 18 + 80;
   const py = H - 106;
 
   doc.roundedRect(ML, py - partnerH, CW, partnerH, 6).fill(C.accent);
   doc.rect(ML, py - partnerH, 3, partnerH).fill(C.gold);
 
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(22)
+  doc.save().font("Helvetica-Bold").fontSize(22)
     .fillColor(C.gold).opacity(1)
     .text("For Your Partner", ML + 14, py - 26, { lineBreak: false }).restore();
   goldRule(doc, py - 34, { alpha: 0.2, x1: ML + 14, x2: ML + 222 });
 
-  doc.save().font(path.join(FONT_DIR, "CrimsonPro-Regular.ttf")).fontSize(12)
+  doc.save().font("Helvetica").fontSize(12)
     .fillColor(C.paper).opacity(0.82);
   partnerLines.forEach((ln, j) => {
     doc.text(ln, ML + 14, py - 52 - j * 18, { lineBreak: false });
@@ -835,19 +823,19 @@ function pageFamily(doc, family) {
   doc.restore();
 
   // Children card — auto-sized
-  const childLines = wrapText(doc, family.children, "CrimsonPro-Regular", 12, CW - 32);
+  const childLines = wrapText(doc, family.children, "Helvetica", 12, CW - 32);
   const childH = childLines.length * 18 + 80;
   const cy2 = py - partnerH - 16;
 
   doc.roundedRect(ML, cy2 - childH, CW, childH, 6).fill("#10101c");
   doc.rect(ML, cy2 - childH, 3, childH).fill(C.purple);
 
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(22)
+  doc.save().font("Helvetica-Bold").fontSize(22)
     .fillColor(C.purpleT).opacity(1)
     .text("For Your Children", ML + 14, cy2 - 26, { lineBreak: false }).restore();
   goldRule(doc, cy2 - 34, { alpha: 0.18, x1: ML + 14, x2: ML + 230 });
 
-  doc.save().font(path.join(FONT_DIR, "CrimsonPro-Regular.ttf")).fontSize(12)
+  doc.save().font("Helvetica").fontSize(12)
     .fillColor(C.paper).opacity(0.78);
   childLines.forEach((ln, j) => {
     doc.text(ln, ML + 14, cy2 - 52 - j * 18, { lineBreak: false });
@@ -866,11 +854,11 @@ function pageActions(doc, actions) {
   doc.rect(0, H - 79, W, 1.5).fill(C.gold);
 
   labelCaps(doc, "07   Your Roadmap", ML, H - 26);
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(26)
+  doc.save().font("Helvetica-Bold").fontSize(26)
     .fillColor(C.paper).opacity(1)
     .text("5 Actions. Start With Number One.", ML, H - 58, { lineBreak: false }).restore();
 
-  doc.save().font(path.join(FONT_DIR, "CrimsonPro-Italic.ttf")).fontSize(11.5)
+  doc.save().font("Helvetica-Oblique").fontSize(11.5)
     .fillColor(C.gold).opacity(0.5)
     .text("One step at a time. These are yours to keep.", ML, H - 94, { lineBreak: false }).restore();
 
@@ -878,18 +866,18 @@ function pageActions(doc, actions) {
 
   let y = H - 122;
   actions.forEach((action, i) => {
-    const lines = wrapText(doc, action, "Lora-Regular", 12.5, CW - 56);
+    const lines = wrapText(doc, action, "Helvetica", 12.5, CW - 56);
     const hNeeded = Math.max(64, 22 + lines.length * 17 + 16);
 
     doc.roundedRect(ML, y - hNeeded, CW, hNeeded, 4).fill("#0c0c14");
 
     // Ghost number
-    doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(56)
+    doc.save().font("Helvetica-Bold").fontSize(56)
       .fillColor(C.gold).opacity(0.06)
       .text(String(i + 1), W - MR - 42, y - hNeeded + 4, { lineBreak: false }).restore();
 
     // Bold number
-    doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(22)
+    doc.save().font("Helvetica-Bold").fontSize(22)
       .fillColor(C.gold).opacity(1)
       .text(String(i + 1), ML + 12, y - 28, { lineBreak: false }).restore();
 
@@ -897,7 +885,7 @@ function pageActions(doc, actions) {
     doc.save().rect(ML + 36, y - hNeeded + 10, 1, hNeeded - 20).fill(C.gold).opacity(0.18).restore();
 
     // Action text
-    doc.save().font(path.join(FONT_DIR, "Lora-Regular.ttf")).fontSize(12.5)
+    doc.save().font("Helvetica").fontSize(12.5)
       .fillColor(C.paper).opacity(1);
     lines.forEach((ln, j) => {
       doc.text(ln, ML + 48, y - 18 - j * 17, { lineBreak: false });
@@ -919,7 +907,7 @@ function pageVariants(doc, variants) {
   goldRule(doc, H - 78, { alpha: 0.3 });
 
   labelCaps(doc, "08   Variant Reference", ML, H - 26);
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(26)
+  doc.save().font("Helvetica-Bold").fontSize(26)
     .fillColor(C.paper).opacity(1)
     .text("Your Key Variants at a Glance", ML, H - 58, { lineBreak: false }).restore();
   goldRule(doc, H - 86, { alpha: 0.1 });
@@ -941,21 +929,21 @@ function pageVariants(doc, variants) {
     const sc = STATUS_COLORS[v.status] || STATUS_COLORS["Typical"];
     doc.save().rect(ML - 6, rowY - rowH + 4, 2.5, rowH).fill(sc.fg).opacity(0.6).restore();
 
-    doc.save().font(path.join(FONT_DIR, "IBMPlexMono-Bold.ttf")).fontSize(10)
+    doc.save().font("Courier-Bold").fontSize(10)
       .fillColor(C.paper).opacity(1)
       .text(v.gene, cols[0] + 4, rowY - 14, { lineBreak: false }).restore();
-    doc.save().font(path.join(FONT_DIR, "IBMPlexMono-Regular.ttf")).fontSize(8)
+    doc.save().font("Courier").fontSize(8)
       .fillColor(C.muted).opacity(1)
       .text(v.rsid, cols[1] + 2, rowY - 14, { lineBreak: false }).restore();
-    doc.save().font(path.join(FONT_DIR, "IBMPlexMono-Bold.ttf")).fontSize(11)
+    doc.save().font("Courier-Bold").fontSize(11)
       .fillColor(C.paper).opacity(1)
       .text(v.geno, cols[2] + 2, rowY - 14, { lineBreak: false }).restore();
 
     pill(doc, cols[3] + 2, rowY - 20, v.status, sc.bg, sc.fg,
-      { font: "InstrumentSans-Bold", size: 7 });
+      { font: "Helvetica-Bold", size: 7 });
 
-    const sumLines = wrapText(doc, v.summary, "InstrumentSans-Regular", 9, W - MR - cols[4] - 4);
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(9)
+    const sumLines = wrapText(doc, v.summary, "Helvetica", 9, W - MR - cols[4] - 4);
+    doc.save().font("Helvetica").fontSize(9)
       .fillColor(C.paper).opacity(0.58)
       .text(sumLines[0] || "", cols[4] + 2, rowY - 14, { lineBreak: false }).restore();
 
@@ -975,14 +963,14 @@ function pageBack(doc) {
 
   const logoY = H * 0.56;
   const hw = doc.widthOfString("Helix",
-    { font: path.join(FONT_DIR, "Gloock-Regular.ttf"), fontSize: 42 });
+    { font: "Helvetica-Bold", fontSize: 42 });
   const iqw = doc.widthOfString("IQ",
-    { font: path.join(FONT_DIR, "CrimsonPro-Regular.ttf"), fontSize: 42 });
+    { font: "Helvetica", fontSize: 42 });
 
-  doc.save().font(path.join(FONT_DIR, "Gloock-Regular.ttf")).fontSize(42)
+  doc.save().font("Helvetica-Bold").fontSize(42)
     .fillColor(C.gold).opacity(0.85)
     .text("Helix", W / 2 - (hw + iqw) / 2, logoY - 42, { lineBreak: false }).restore();
-  doc.save().font(path.join(FONT_DIR, "CrimsonPro-Regular.ttf")).fontSize(42)
+  doc.save().font("Helvetica").fontSize(42)
     .fillColor(C.paper).opacity(0.28)
     .text("IQ", W / 2 - (hw + iqw) / 2 + hw, logoY - 42, { lineBreak: false }).restore();
 
@@ -990,8 +978,8 @@ function pageBack(doc) {
 
   const url = "myhelixiq.com";
   const uw = doc.widthOfString(url,
-    { font: path.join(FONT_DIR, "InstrumentSans-Regular.ttf"), fontSize: 9.5 });
-  doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(9.5)
+    { font: "Helvetica", fontSize: 9.5 });
+  doc.save().font("Helvetica").fontSize(9.5)
     .fillColor(C.paper).opacity(0.28)
     .text(url, W / 2 - uw / 2, logoY - 30, { lineBreak: false }).restore();
 
@@ -1002,8 +990,8 @@ function pageBack(doc) {
   ];
   disclaimers.forEach((d, i) => {
     const dw = doc.widthOfString(d,
-      { font: path.join(FONT_DIR, "InstrumentSans-Regular.ttf"), fontSize: 7.5 });
-    doc.save().font(path.join(FONT_DIR, "InstrumentSans-Regular.ttf")).fontSize(7.5)
+      { font: "Helvetica", fontSize: 7.5 });
+    doc.save().font("Helvetica").fontSize(7.5)
       .fillColor(C.paper).opacity(0.18)
       .text(d, W / 2 - dw / 2, 62 - i * 14, { lineBreak: false }).restore();
   });
@@ -1047,24 +1035,6 @@ export async function generatePDF(reportText, packageName, email, packageKey) {
         Subject: "Genetic Analysis Report",
       },
     });
-
-    // Register all fonts
-    const fonts = {
-      "Gloock-Regular":        "Gloock-Regular.ttf",
-      "CrimsonPro-Regular":    "CrimsonPro-Regular.ttf",
-      "CrimsonPro-Bold":       "CrimsonPro-Bold.ttf",
-      "CrimsonPro-Italic":     "CrimsonPro-Italic.ttf",
-      "InstrumentSans-Regular":"InstrumentSans-Regular.ttf",
-      "InstrumentSans-Bold":   "InstrumentSans-Bold.ttf",
-      "IBMPlexMono-Regular":   "IBMPlexMono-Regular.ttf",
-      "IBMPlexMono-Bold":      "IBMPlexMono-Bold.ttf",
-      "Lora-Regular":          "Lora-Regular.ttf",
-      "Lora-Bold":             "Lora-Bold.ttf",
-      "Lora-Italic":           "Lora-Italic.ttf",
-    };
-    for (const [name, file] of Object.entries(fonts)) {
-      doc.registerFont(name, path.join(FONT_DIR, file));
-    }
 
     const chunks = [];
     doc.on("data",  chunk => chunks.push(chunk));
