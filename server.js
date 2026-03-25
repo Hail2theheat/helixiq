@@ -536,7 +536,7 @@ app.post(
     // Respond immediately — report will be emailed in the background
     res.json({
       success: true,
-      message: 'Your report is being generated and will be emailed to you within 5 minutes. Your raw DNA file has been permanently deleted from our servers and will never be stored, sold, or shared. We have zero access to it after this moment.',
+      message: 'Analyzing your DNA variants and generating your personalized report. This typically takes 3 to 5 minutes. We will email your report to you shortly — check your inbox and spam folder. Your raw DNA file has been permanently deleted from our servers.',
     });
 
     // Process report generation asynchronously
@@ -753,9 +753,13 @@ app.get("/upload", (req, res) => {
       const data = await response.json();
 
       if (data.success) {
-        status.className = 'status success';
-        status.textContent = '✓ Your report has been generated and sent to ' + (customerEmail || 'your email address') + '. Check your inbox (and spam folder).';
+        status.className = 'status loading';
+        status.textContent = '⏳ Analyzing your genome across 700,000+ variants...';
         submitBtn.style.display = 'none';
+        setTimeout(function() {
+          status.className = 'status success';
+          status.textContent = '✓ Your report has been generated and sent to ' + (customerEmail || 'your email address') + '. Check your inbox and spam folder.';
+        }, 180000);
       } else {
         throw new Error(data.error || 'Unknown error');
       }
