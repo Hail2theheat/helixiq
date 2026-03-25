@@ -384,6 +384,7 @@ app.post("/api/create-checkout", express.json(), async (req, res) => {
   const pkg = PACKAGES[packageKey];
 
   try {
+    console.log('BASE_URL:', process.env.BASE_URL);
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       customer_email: email || undefined,
