@@ -383,31 +383,34 @@ app.post("/api/create-checkout", express.json(), async (req, res) => {
 
   const pkg = PACKAGES[packageKey];
 
+  const checkoutParams = {
+    payment_method_types: ["card"],
+    customer_email: email || undefined,
+    line_items: [
+      {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: `HelixIQ — ${pkg.name}`,
+            description: pkg.description,
+            images: [`${process.env.BASE_URL}/images/logo-og.png`],
+          },
+          unit_amount: pkg.price,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    success_url: 'https://myhelixiq.com/upload?session_id={CHECKOUT_SESSION_ID}',
+    cancel_url: 'https://myhelixiq.com/#pricing',
+    metadata: { packageKey },
+    billing_address_collection: "auto",
+  };
+
   try {
     console.log('BASE_URL:', process.env.BASE_URL);
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      customer_email: email || undefined,
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: `HelixIQ — ${pkg.name}`,
-              description: pkg.description,
-              images: [`${process.env.BASE_URL}/images/logo-og.png`],
-            },
-            unit_amount: pkg.price,
-          },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: 'https://myhelixiq.com/upload?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://myhelixiq.com/#pricing',
-      metadata: { packageKey },
-      billing_address_collection: "auto",
-    });
+    console.log('Stripe checkout params:', JSON.stringify(checkoutParams, null, 2));
+    const session = await stripe.checkout.sessions.create(checkoutParams);
 
     // Store pending order
     pendingOrders.set(session.id, {
@@ -418,7 +421,10 @@ app.post("/api/create-checkout", express.json(), async (req, res) => {
 
     res.json({ url: session.url });
   } catch (err) {
-    console.error("Stripe error:", err);
+    console.error("Stripe error message:", err.message);
+    console.error("Stripe error type:", err.type);
+    console.error("Stripe error full:", err);
+    console.error("Params sent:", JSON.stringify(checkoutParams, null, 2));
     res.status(500).json({ error: "Failed to create checkout session" });
   }
 });
