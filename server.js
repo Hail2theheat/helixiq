@@ -1,15 +1,12 @@
 // ============================================================
 // HelixIQ — Backend: Stripe + File Upload + Claude API + Email PDF
-// Stack: Node.js + Express + Stripe + Anthropic SDK + Nodemailer + PDFKit
+// Stack: Node.js + Express + Stripe + Anthropic SDK + SendGrid + PDFKit
 // ============================================================
 // .env variables required:
 //   STRIPE_SECRET_KEY=sk_live_...
 //   STRIPE_WEBHOOK_SECRET=whsec_...
 //   ANTHROPIC_API_KEY=sk-ant-...
-//   SMTP_HOST=smtp.sendgrid.net
-//   SMTP_PORT=587
-//   SMTP_USER=apikey
-//   SMTP_PASS=SG.xxxx
+//   SMTP_PASS=SG.xxxx  (SendGrid API key)
 //   EMAIL_FROM=reports@helixiq.com
 //   BASE_URL=https://helixiq.com
 //   PORT=3000
@@ -19,7 +16,7 @@ import express from "express";
 import Stripe from "stripe";
 import Anthropic from "@anthropic-ai/sdk";
 import multer from "multer";
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 import { generatePDF } from "./pdf-generator.js";
 import dotenv from "dotenv";
 import crypto from "crypto";
@@ -58,13 +55,8 @@ const upload = multer({
   },
 });
 
-// ── Email transporter ───────────────────────────────────────────────────
-const mailer = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false,
-  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-});
+// ── SendGrid ────────────────────────────────────────────────────────────
+sgMail.setApiKey(process.env.SMTP_PASS);
 
 // ── Packages config ─────────────────────────────────────────────────────
 const PACKAGES = {
@@ -568,11 +560,7 @@ app.post(
         console.log(`[${sessionId}] PDF generated (${pdfBuffer.length} bytes)`);
 
         // Send email with PDF attachment
-        await mailer.sendMail({
-          from: `HelixIQ <${process.env.EMAIL_FROM}>`,
-          to: customerEmail,
-          subject: `Your HelixIQ ${PACKAGES[packageKey].name} Report Is Ready`,
-          html: `
+        const emailHtml = `
             <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
               <h1 style="font-size: 28px; font-weight: 300; border-bottom: 1px solid #c9a84c; padding-bottom: 16px; margin-bottom: 24px;">Your HelixIQ Report</h1>
               <p style="font-size: 16px; line-height: 1.7; color: #444;">Your <strong>${PACKAGES[packageKey].name}</strong> is attached to this email as a PDF.</p>
@@ -583,14 +571,18 @@ app.post(
               </p>
               <p style="font-size: 13px; color: #888;">© 2025 HelixIQ · <a href="${process.env.BASE_URL}/privacy" style="color: #c9a84c;">Privacy Policy</a></p>
             </div>
-          `,
-          attachments: [
-            {
-              filename: `HelixIQ-${packageKey}-report.pdf`,
-              content: pdfBuffer,
-              contentType: "application/pdf",
-            },
-          ],
+          `;
+        await sgMail.send({
+          to: customerEmail,
+          from: process.env.EMAIL_FROM,
+          subject: `Your HelixIQ ${PACKAGES[packageKey].name} Report Is Ready`,
+          html: emailHtml,
+          attachments: [{
+            content: pdfBuffer.toString('base64'),
+            filename: `HelixIQ-${packageKey}-report.pdf`,
+            type: 'application/pdf',
+            disposition: 'attachment'
+          }]
         });
         console.log(`[${sessionId}] Email sent to ${customerEmail}`);
 
