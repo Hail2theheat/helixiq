@@ -359,12 +359,19 @@ This is the premium $149 report — every section should feel thorough and perso
 }
 
 // ── PDF generation via Python subprocess ────────────────────────
-function generatePDF(reportJson, packageName, email, packageKey) {
+function generatePDF(reportData, packageName, email, packageKey) {
+  let reportJson = typeof reportData === 'string' ? reportData : JSON.stringify(reportData);
+  // Strip markdown code fences if present
+  reportJson = reportJson.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+
   return new Promise((resolve, reject) => {
     const proc = spawn("python3", ["generate_v5.py", packageName, email, packageKey], {
       cwd: __dirname,
       stdio: ["pipe", "pipe", "pipe"],
     });
+
+    proc.stdin.write(reportJson);
+    proc.stdin.end();
 
     const chunks = [];
     let stderr = "";
@@ -381,9 +388,6 @@ function generatePDF(reportJson, packageName, email, packageKey) {
     });
 
     proc.on("error", (err) => reject(err));
-
-    proc.stdin.write(reportJson);
-    proc.stdin.end();
   });
 }
 
