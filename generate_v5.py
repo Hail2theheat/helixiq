@@ -12,13 +12,14 @@ HelixIQ Premium Report v3
 import sys
 import json
 import io
+import os
 import math
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.pagesizes import LETTER
 
-FONT_DIR = "/mnt/skills/examples/canvas-design/canvas-fonts"
+FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'canvas-fonts')
 pdfmetrics.registerFont(TTFont("Gloock",        f"{FONT_DIR}/Gloock-Regular.ttf"))
 pdfmetrics.registerFont(TTFont("Crimson",       f"{FONT_DIR}/CrimsonPro-Regular.ttf"))
 pdfmetrics.registerFont(TTFont("CrimsonBold",   f"{FONT_DIR}/CrimsonPro-Bold.ttf"))
