@@ -24,6 +24,7 @@ import path from "path";
 import fs, { existsSync } from "fs";
 import { fileURLToPath } from "url";
 import { createServer } from "http";
+import { execSync } from "child_process";
 
 if (existsSync('.env')) { dotenv.config(); }
 
@@ -771,6 +772,7 @@ const PORT = process.env.PORT || 3000;
 const server = createServer(app);
 server.listen(PORT, () => {
   console.log(`HelixIQ server running on port ${PORT}`);
+  try { console.log('Python:', execSync('python3 --version').toString()); } catch(e) { console.log('Python not available:', e.message); }
 });
 
 // ════════════════════════════════════════════════════════════════
