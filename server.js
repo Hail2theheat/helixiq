@@ -17,14 +17,13 @@ import Stripe from "stripe";
 import Anthropic from "@anthropic-ai/sdk";
 import multer from "multer";
 import sgMail from "@sendgrid/mail";
-import { generatePDF } from "./pdf-generator.js";
 import dotenv from "dotenv";
 import crypto from "crypto";
 import path from "path";
 import fs, { existsSync } from "fs";
 import { fileURLToPath } from "url";
 import { createServer } from "http";
-import { execSync } from "child_process";
+import { execSync, spawn } from "child_process";
 
 if (existsSync('.env')) { dotenv.config(); }
 
@@ -357,6 +356,35 @@ This is the premium $149 report — every section should feel thorough and perso
   };
 
   return prompts[packageKey] || prompts.nutrition;
+}
+
+// ── PDF generation via Python subprocess ────────────────────────
+function generatePDF(reportJson, packageName, email, packageKey) {
+  return new Promise((resolve, reject) => {
+    const proc = spawn("python3", ["generate_v5.py", packageName, email, packageKey], {
+      cwd: __dirname,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    const chunks = [];
+    let stderr = "";
+
+    proc.stdout.on("data", (chunk) => chunks.push(chunk));
+    proc.stderr.on("data", (chunk) => (stderr += chunk.toString()));
+
+    proc.on("close", (code) => {
+      if (code !== 0) {
+        reject(new Error(`generate_v5.py exited with code ${code}: ${stderr}`));
+      } else {
+        resolve(Buffer.concat(chunks));
+      }
+    });
+
+    proc.on("error", (err) => reject(err));
+
+    proc.stdin.write(reportJson);
+    proc.stdin.end();
+  });
 }
 
 // ════════════════════════════════════════════════════════════════
