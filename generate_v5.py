@@ -9,17 +9,19 @@ HelixIQ Premium Report v3
 - Proper text wrapping throughout
 """
 
-import sys
-import json
-import io
-import os
-import math
+import math, sys, json, io, os
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.pagesizes import LETTER
 
-FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'canvas-fonts')
+FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "canvas-fonts")
+
+# ── Read CLI args and stdin ──
+_pkg_name    = sys.argv[1] if len(sys.argv) > 1 else "Nutrition & Supplements"
+_email       = sys.argv[2] if len(sys.argv) > 2 else "customer@example.com"
+_package_key = sys.argv[3] if len(sys.argv) > 3 else "nutrition"
+_raw_json    = sys.stdin.read().strip()
 pdfmetrics.registerFont(TTFont("Gloock",        f"{FONT_DIR}/Gloock-Regular.ttf"))
 pdfmetrics.registerFont(TTFont("Crimson",       f"{FONT_DIR}/CrimsonPro-Regular.ttf"))
 pdfmetrics.registerFont(TTFont("CrimsonBold",   f"{FONT_DIR}/CrimsonPro-Bold.ttf"))
@@ -33,18 +35,6 @@ pdfmetrics.registerFont(TTFont("LoraItalic",    f"{FONT_DIR}/Lora-Italic.ttf"))
 pdfmetrics.registerFont(TTFont("LoraBold",      f"{FONT_DIR}/Lora-Bold.ttf"))
 
 from reportlab.lib.colors import HexColor
-
-# ── CLI args + stdin interface ────────────────────────
-package_name = sys.argv[1] if len(sys.argv) > 1 else 'Nutrition & Supplements'
-customer_email = sys.argv[2] if len(sys.argv) > 2 else 'customer@example.com'
-package_key = sys.argv[3] if len(sys.argv) > 3 else 'nutrition'
-
-raw_json = sys.stdin.read()
-REPORT_DATA = {}
-if raw_json.strip():
-    REPORT_DATA = json.loads(raw_json)
-    REPORT_DATA['customer_name'] = REPORT_DATA.get('customer_name', customer_email.split('@')[0].capitalize())
-    REPORT_DATA['email'] = customer_email
 
 INK      = HexColor("#0a0a0f")
 NAVY     = HexColor("#0e1520")
@@ -153,52 +143,252 @@ def pill(c, x, y, text, bg, fg, font="InstrumentB", sz=7):
     c.drawString(x + 7, y + 3, text)
     return tw + 6
 
-def page_footer(c, name="Stephen", date="March 24, 2026"):
+def page_footer(c, name=None, date=None):
+    _n = name or _email.split("@")[0].capitalize()
+    _d = date or ""
     gold_rule(c, 52, alpha=0.1)
-    label_caps(c, f"Prepared for {name}   {date}   myhelixiq.com",
+    label_caps(c, f"Prepared for {_n}   myhelixiq.com",
                ML, 38, PAPER, 0.18)
 
 
 # ─────────────────────────────────────────────────────────
-# REPORT DATA — mapped from REPORT_DATA (Claude JSON)
+# REPORT DATA — dynamically loaded from Claude JSON via stdin
+# Falls back to demo data if stdin is empty
 # ─────────────────────────────────────────────────────────
 
-_d = REPORT_DATA
+def _extract_wins(d):
+    items = d.get("topWins") or d.get("topStrengths") or d.get("topAdvantages") or []
+    result = []
+    for item in items:
+        result.append({
+            "gene":       item.get("gene",""),
+            "title":      item.get("title",""),
+            "insight":    item.get("insight",""),
+            "action":     item.get("action",""),
+            "rarity":     item.get("impact","Common"),
+            "rarity_pct": item.get("rarity_pct",""),
+        })
+    return result or None
 
-# ── Wins (topWins / topStrengths / topAdvantages) ────────
-_raw_wins = _d.get('topWins') or _d.get('topStrengths') or _d.get('topAdvantages') or []
-WINS = [{
-    'gene':       w.get('gene', ''),
-    'title':      w.get('title', ''),
-    'insight':    w.get('insight', ''),
-    'action':     w.get('action', ''),
-    'rarity':     w.get('rarity', 'Common'),
-    'rarity_pct': w.get('rarity_pct', ''),
-    'impact':     w.get('impact', 'Moderate'),
-} for w in _raw_wins[:5]]
+def _extract_risks(d):
+    items = d.get("topRisks") or d.get("watchAreas") or []
+    result = []
+    for item in items:
+        result.append({
+            "gene":       item.get("gene",""),
+            "title":      item.get("title",""),
+            "insight":    item.get("insight",""),
+            "action":     item.get("action",""),
+            "severity":   item.get("urgency") or item.get("severity","Moderate"),
+            "rarity":     "Common",
+            "rarity_pct": item.get("rarity_pct",""),
+        })
+    return result or None
 
-# ── Risks (topRisks / watchAreas) ────────────────────────
-_raw_risks = _d.get('topRisks') or _d.get('watchAreas') or []
-RISKS = [{
-    'gene':       r.get('gene', ''),
-    'title':      r.get('title', ''),
-    'insight':    r.get('insight', ''),
-    'action':     r.get('action', ''),
-    'severity':   r.get('severity') or r.get('urgency', 'Moderate'),
-    'rarity':     r.get('rarity', 'Common'),
-    'rarity_pct': r.get('rarity_pct', ''),
-} for r in _raw_risks[:5]]
+def _extract_supplements(d):
+    items = d.get("supplementStack") or []
+    result = []
+    for item in items:
+        pri = item.get("priority","Recommended")
+        pri_num = 3 if pri=="Essential" else 2 if pri=="Recommended" else 1
+        result.append({
+            "name":     item.get("name",""),
+            "dose":     item.get("form",""),
+            "form":     item.get("form",""),
+            "why":      item.get("why",""),
+            "warning":  "Check form and certification before purchasing.",
+            "priority": pri_num,
+        })
+    return result or None
 
-# ── Supplements (supplementStack) ────────────────────────
-_raw_supps = _d.get('supplementStack') or []
-SUPPLEMENTS = [{
-    'name':     s.get('name', ''),
-    'dose':     s.get('dose') or s.get('form', ''),
-    'form':     s.get('form', ''),
-    'why':      s.get('why', ''),
-    'warning':  s.get('warning', 'Check form and certification before purchasing.'),
-    'priority': 3 if s.get('priority') == 'Essential' else 2 if s.get('priority') == 'Recommended' else 1,
-} for s in _raw_supps[:6]]
+def _extract_diet(d):
+    dp = d.get("dietPattern") or {}
+    if isinstance(dp, str):
+        return None
+    return {
+        "pattern":   dp.get("recommendation","Mediterranean"),
+        "reason":    dp.get("reason",""),
+        "do_more":   dp.get("doMore") or [],
+        "do_less":   dp.get("doLess") or [],
+    }
+
+def _extract_family(d):
+    fn = d.get("familyNotes") or {}
+    return {
+        "partner":  fn.get("partner",""),
+        "children": fn.get("children",""),
+    }
+
+def _extract_actions(d):
+    return d.get("actionPlan") or d.get("preventionPlan") or d.get("performancePlan") or []
+
+def _extract_variants(d):
+    items = d.get("keyVariants") or []
+    result = []
+    for v in items:
+        result.append({
+            "gene":    v.get("gene",""),
+            "rsid":    v.get("variant",""),
+            "geno":    v.get("genotype",""),
+            "status":  v.get("status","Typical"),
+            "summary": v.get("summary",""),
+        })
+    return result or None
+
+# ── Load dynamic data if available ──
+_dynamic = {}
+if _raw_json:
+    try:
+        _dynamic = json.loads(_raw_json)
+    except Exception as e:
+        print(f"JSON parse error: {e}", file=sys.stderr)
+
+WINS = [
+    {
+        "gene": "VDR",
+        "title": "Strong Vitamin D Response",
+        "insight": "Your receptor variant means your body responds efficiently to the vitamin D it absorbs. Quality sunlight and D3 go further for you than for most people.",
+        "action": "15 to 20 min midday sun without SPF, 3 to 4 times weekly. Add D3 plus K2 in winter.",
+        "rarity": "Uncommon",
+        "rarity_pct": "Found in 28% of people",
+        "impact": "Moderate",
+    },
+    {
+        "gene": "CYP1A2",
+        "title": "Efficient Caffeine Window",
+        "insight": "You process caffeine at a moderate-to-fast rate. Not so fast it wears off quickly, and not so slow it disrupts sleep if you time it right.",
+        "action": "One or two quality coffees before noon. Your window closes faster than a slow metabolizer.",
+        "rarity": "Common",
+        "rarity_pct": "Found in 45% of people",
+        "impact": "Low",
+    },
+    {
+        "gene": "HFE",
+        "title": "Normal Iron Absorption",
+        "insight": "No hemochromatosis variants detected. Your iron absorption pathway works within a normal, healthy range with no elevated risk of iron overload.",
+        "action": "No iron restrictions needed. Standard dietary iron from lean red meat and legumes is fine.",
+        "rarity": "Common",
+        "rarity_pct": "Found in 60% of people",
+        "impact": "Low",
+    },
+    {
+        "gene": "COMT",
+        "title": "Balanced Dopamine Clearance",
+        "insight": "Your COMT AG genotype sits in the middle of the dopamine metabolism spectrum. You get the focus benefits without the anxiety edge that COMT MM carriers often experience.",
+        "action": "Moderate exercise boosts your dopamine pathway optimally. Intense daily HIIT may backfire.",
+        "rarity": "Uncommon",
+        "rarity_pct": "Found in 35% of people",
+        "impact": "Moderate",
+    },
+    {
+        "gene": "TCF7L2",
+        "title": "Reasonable Carb Tolerance",
+        "insight": "Your TCF7L2 TC genotype represents the middle-risk category for carbohydrate metabolism. You have some sensitivity but are far from the high-risk end of the spectrum.",
+        "action": "Whole grains and legumes over refined carbs. Blood sugar rarely needs active monitoring.",
+        "rarity": "Common",
+        "rarity_pct": "Found in 40% of people",
+        "impact": "Low",
+    },
+]
+
+RISKS = [
+    {
+        "gene": "MTHFR",
+        "title": "Reduced Folate Conversion",
+        "insight": "You carry the C677T variant (rs1801133 AG), reducing MTHFR enzyme activity by roughly 35%. Your body converts folic acid less efficiently into the active form your cells actually use.",
+        "action": "Switch every folic acid supplement to L-methylfolate 400 to 800mcg immediately. Read every label.",
+        "severity": "High Priority",
+        "rarity": "Very Common",
+        "rarity_pct": "Found in 40% of people",
+    },
+    {
+        "gene": "FADS1",
+        "title": "Slower Omega-3 Conversion",
+        "insight": "Your FADS1 and FADS2 variants reduce efficiency converting plant-based ALA into the EPA and DHA your brain and cardiovascular system actually use.",
+        "action": "Replace flaxseed and chia as your omega-3 source. Use fish oil or algae-based EPA and DHA directly.",
+        "severity": "Moderate",
+        "rarity": "Uncommon",
+        "rarity_pct": "Found in 25% of people",
+    },
+    {
+        "gene": "SOD2",
+        "title": "Elevated Oxidative Stress",
+        "insight": "This SOD2 variant affects your mitochondrial antioxidant defense. Under training load or high stress, your cells accumulate oxidative damage slightly faster than average.",
+        "action": "Prioritize sleep, limit alcohol, and add CoQ10 ubiquinol plus magnesium glycinate to your stack.",
+        "severity": "Moderate",
+        "rarity": "Common",
+        "rarity_pct": "Found in 30% of people",
+    },
+    {
+        "gene": "FADS2",
+        "title": "Reduced EPA Synthesis",
+        "insight": "Working alongside the FADS1 finding, this variant compounds your difficulty synthesizing long-chain omega-3s from plant sources. The two variants together are more significant than either alone.",
+        "action": "Commit to 1000mg combined EPA and DHA daily. This one is not negotiable for your genome.",
+        "severity": "Moderate",
+        "rarity": "Uncommon",
+        "rarity_pct": "Found in 22% of people",
+    },
+    {
+        "gene": "MTHFR",
+        "title": "Elevated Homocysteine Risk",
+        "insight": "The C677T variant also affects homocysteine clearance, a cardiovascular marker. Elevated homocysteine is an independent risk factor and is directly addressable through your supplement stack.",
+        "action": "Ask your doctor to test homocysteine levels at your next visit. Target below 10 umol/L.",
+        "severity": "Worth Watching",
+        "rarity": "Common",
+        "rarity_pct": "Consequence of MTHFR C677T",
+    },
+]
+
+SUPPLEMENTS = [
+    {
+        "name": "L-Methylfolate",
+        "dose": "400 to 800mcg daily with food",
+        "form": "Look for: 5-MTHF or Quatrefolic on the label",
+        "why": "Your MTHFR C677T variant reduces folic acid conversion by 35%. Standard folic acid largely bypasses this variant. Methylfolate is the active form your cells use directly.",
+        "warning": "Avoid: Any product listing only folic acid or pteroylglutamic acid. These require the MTHFR enzyme you have less of.",
+        "priority": 3,
+    },
+    {
+        "name": "Methylcobalamin B12",
+        "dose": "1000mcg sublingual or 500mcg oral daily",
+        "form": "Look for: methylcobalamin specifically",
+        "why": "Works with methylfolate in your methylation cycle. Your MTHFR status increases demand for activated B vitamins across the board.",
+        "warning": "Avoid: Cyanocobalamin, the cheap form in most multivitamins. It requires conversion steps your genome handles less efficiently.",
+        "priority": 3,
+    },
+    {
+        "name": "Vitamin D3 with K2",
+        "dose": "2000 IU D3 plus 100mcg K2 MK-7 daily with fat",
+        "form": "Look for: D3 (cholecalciferol) not D2, K2 as MK-7 not MK-4",
+        "why": "Your VDR variant makes you responsive to D3. K2 is essential alongside D3 to direct calcium into bones rather than arteries.",
+        "warning": "Never supplement D3 without K2. High-dose D3 alone can misdirect calcium. Test 25(OH)D levels after 3 months and adjust.",
+        "priority": 3,
+    },
+    {
+        "name": "Omega-3 EPA and DHA",
+        "dose": "1000mg combined EPA plus DHA daily with food",
+        "form": "Look for: Triglyceride form, third-party tested",
+        "why": "Your FADS1 and FADS2 variants mean plant-based ALA converts poorly. You need pre-formed EPA and DHA directly, not flaxseed or chia.",
+        "warning": "Avoid: Fish oil that only lists total omega-3 without breaking out EPA and DHA separately. Avoid oxidized oil (if it smells fishy, it has gone off). Choose products with IFOS or NSF certification.",
+        "priority": 3,
+    },
+    {
+        "name": "Magnesium Glycinate",
+        "dose": "300mg before bed",
+        "form": "Look for: Glycinate or bisglycinate specifically",
+        "why": "Supports your methylation pathways, improves sleep quality, and helps your SOD2 antioxidant system function.",
+        "warning": "Avoid: Magnesium oxide, the most common cheap form that causes digestive upset and absorbs poorly. Also avoid citrate if you have loose digestion.",
+        "priority": 2,
+    },
+    {
+        "name": "CoQ10 Ubiquinol",
+        "dose": "100mg daily with your fattiest meal",
+        "form": "Look for: Ubiquinol (reduced form), not ubiquinone",
+        "why": "Your SOD2 variant increases mitochondrial oxidative stress. CoQ10 is a core mitochondrial antioxidant and directly addresses this pathway.",
+        "warning": "Note: Ubiquinone is cheaper but converts less efficiently. Over 40, this matters more. Ubiquinol is the pre-reduced, ready-to-use form.",
+        "priority": 2,
+    },
+]
 
 SHOPPING_TIPS = [
     {
@@ -227,49 +417,79 @@ SHOPPING_TIPS = [
     },
 ]
 
-_icon_palette = [
-    {"icon": "LEAF",   "color": GREEN_T, "bg": GREEN_BG},
-    {"icon": "FISH",   "color": BLUE_T,  "bg": BLUE_BG},
-    {"icon": "DROP",   "color": AMBER_T, "bg": AMBER_BG},
-    {"icon": "CIRCLE", "color": GOLD,    "bg": HexColor("#1a1508")},
-    {"icon": "BEAN",   "color": GREEN_T, "bg": GREEN_BG},
+DIET_SECTIONS = [
+    {
+        "icon": "LEAF",
+        "color": GREEN_T,
+        "bg": GREEN_BG,
+        "title": "Dark Leafy Greens",
+        "sub": "Daily",
+        "body": "Spinach, kale, arugula, and collards are your most direct dietary folate sources. Your MTHFR variant means you need food-based folate, not just supplements.",
+    },
+    {
+        "icon": "FISH",
+        "color": BLUE_T,
+        "bg": BLUE_BG,
+        "title": "Fatty Fish",
+        "sub": "3x per week",
+        "body": "Salmon, sardines, and mackerel provide pre-formed EPA and DHA directly. Given your FADS variants, this is non-negotiable for brain and heart health.",
+    },
+    {
+        "icon": "DROP",
+        "color": AMBER_T,
+        "bg": AMBER_BG,
+        "title": "Extra Virgin Olive Oil",
+        "sub": "Primary fat source",
+        "body": "Your genome handles unsaturated fat exceptionally well. Two to four tablespoons daily reduces inflammation and supports your cardiovascular baseline.",
+    },
+    {
+        "icon": "CIRCLE",
+        "color": GOLD,
+        "bg": HexColor("#1a1508"),
+        "title": "Eggs",
+        "sub": "4 to 7 per week",
+        "body": "Rich in choline, which works alongside methylfolate in your methylation cycle. One of the best whole-food methylation supporters for your specific variant profile.",
+    },
+    {
+        "icon": "BEAN",
+        "color": GREEN_T,
+        "bg": GREEN_BG,
+        "title": "Legumes",
+        "sub": "3 to 4x per week",
+        "body": "Lentils, chickpeas, and black beans provide slow carbohydrates, plant-based folate, and fiber. Your TCF7L2 variant means these are better than refined carbs by a wide margin.",
+    },
 ]
 
-_raw_do_more = (_d.get('dietPattern') or {}).get('doMore') or []
-DIET_SECTIONS = []
-for idx, item in enumerate(_raw_do_more[:5]):
-    pal = _icon_palette[idx % len(_icon_palette)]
-    DIET_SECTIONS.append({
-        "icon":  pal["icon"],
-        "color": pal["color"],
-        "bg":    pal["bg"],
-        "title": item.get('food', ''),
-        "sub":   item.get('frequency', ''),
-        "body":  item.get('reason', ''),
-    })
+DO_LESS = [
+    ("Synthetic Folic Acid", "Check cereal, bread, and supplement labels. This form of folate requires the MTHFR enzyme you have less of."),
+    ("Refined Carbohydrates", "Your TCF7L2 variant makes you modestly more sensitive to blood sugar spikes from white bread, sugar, and processed grains."),
+    ("Alcohol", "Increases your oxidative burden directly affecting your SOD2 pathway, and depletes the B vitamins your methylation cycle depends on."),
+]
 
-_raw_do_less = (_d.get('dietPattern') or {}).get('doLess') or []
-DO_LESS = [(item.get('food', ''), item.get('reason', '')) for item in _raw_do_less[:3]]
+VARIANTS = [
+    {"gene": "MTHFR",  "rsid": "rs1801133", "geno": "AG", "status": "Monitor",    "summary": "Reduced folate conversion by 35%"},
+    {"gene": "MTHFR",  "rsid": "rs1801131", "geno": "TT", "status": "Typical",    "summary": "Normal at second MTHFR position"},
+    {"gene": "VDR",    "rsid": "rs2228570",  "geno": "TC", "status": "Protective", "summary": "Good vitamin D receptor response"},
+    {"gene": "CYP1A2", "rsid": "rs762551",   "geno": "AC", "status": "Typical",    "summary": "Moderate caffeine clearance rate"},
+    {"gene": "FADS1",  "rsid": "rs174546",   "geno": "TC", "status": "Monitor",    "summary": "Reduced plant omega-3 conversion"},
+    {"gene": "FADS2",  "rsid": "rs174575",   "geno": "CG", "status": "Monitor",    "summary": "Reduced EPA and DHA synthesis"},
+    {"gene": "SOD2",   "rsid": "rs4880",     "geno": "TC", "status": "Monitor",    "summary": "Moderate mitochondrial oxidative stress"},
+    {"gene": "COMT",   "rsid": "rs4680",     "geno": "AG", "status": "Typical",    "summary": "Balanced dopamine metabolism"},
+    {"gene": "HFE",    "rsid": "rs1800562",  "geno": "GG", "status": "Protective", "summary": "Normal iron absorption, no overload risk"},
+    {"gene": "TCF7L2", "rsid": "rs7903146",  "geno": "TC", "status": "Typical",    "summary": "Moderate carbohydrate metabolism"},
+]
 
-_raw_variants = _d.get('keyVariants') or []
-VARIANTS = [{
-    'gene':    v.get('gene', ''),
-    'rsid':    v.get('variant') or v.get('rsid', ''),
-    'geno':    v.get('genotype') or v.get('geno', ''),
-    'status':  v.get('status', 'Typical'),
-    'summary': v.get('summary', ''),
-} for v in _raw_variants[:10]]
+ACTIONS = [
+    "Swap every supplement containing folic acid for one listing L-methylfolate or 5-MTHF on the label",
+    "Book a blood test this week: homocysteine, 25-OH vitamin D, and B12 to establish your baselines",
+    "Add fatty fish to your next three weekly meal plans, specifically salmon, sardines, or mackerel",
+    "Replace any fish oil that does not specify EPA and DHA amounts separately on the label",
+    "Start magnesium glycinate at 300mg before bed for two weeks and track your sleep quality",
+]
 
-_raw_actions = _d.get('actionPlan') or _d.get('preventionPlan') or _d.get('performancePlan') or _d.get('masterActionPlan') or []
-if _raw_actions and isinstance(_raw_actions[0], dict):
-    ACTIONS = [a.get('action') or a.get('step', '') for a in _raw_actions[:5]]
-else:
-    ACTIONS = [str(a) for a in _raw_actions[:5]]
-
-_raw_family = _d.get('familyNotes') or {}
 FAMILY = {
-    "partner":  _raw_family.get('partner', ''),
-    "children": _raw_family.get('children', ''),
+    "partner": "The MTHFR finding is relevant to anyone planning a family with you. The C677T variant is heritable, and a partner who also carries it would benefit from testing before pregnancy. Beyond genetics, the Mediterranean eating pattern your genome calls for is one of the most family-friendly diets there is. It rarely requires separate meals.",
+    "children": "The MTHFR C677T variant has a roughly 50% chance of being passed to children. This is not a problem, but it changes which supplements are ideal during pregnancy and childhood. Any future children would benefit from methylated B vitamins rather than synthetic folic acid from the very beginning.",
 }
 
 
@@ -1481,26 +1701,64 @@ def page_back(c):
 
 
 # ─────────────────────────────────────────────────────────
-# ASSEMBLE FULL PDF
+# ASSEMBLE FULL PDF — dynamic data injection
 # ─────────────────────────────────────────────────────────
 
+# Override global data arrays with dynamic Claude output if available
+if _dynamic:
+    _w = _extract_wins(_dynamic)
+    if _w: WINS[:] = _w[:5]
+
+    _r = _extract_risks(_dynamic)
+    if _r: RISKS[:] = _r[:5]
+
+    _s = _extract_supplements(_dynamic)
+    if _s: SUPPLEMENTS[:] = _s[:6]
+
+    _dt = _extract_diet(_dynamic)
+    if _dt:
+        DIET_SECTIONS.clear()
+        for item in (_dt.get("do_more") or [])[:5]:
+            DIET_SECTIONS.append({
+                "icon": "LEAF", "color": GREEN_T, "bg": GREEN_BG,
+                "title": item[:30], "sub": "Recommended", "body": item
+            })
+
+    _fam = _extract_family(_dynamic)
+    if _fam.get("partner") or _fam.get("children"):
+        FAMILY.update(_fam)
+
+    _acts = _extract_actions(_dynamic)
+    if _acts: ACTIONS[:] = _acts[:5]
+
+    _vars = _extract_variants(_dynamic)
+    if _vars: VARIANTS[:] = _vars[:10]
+
+    # Update cover headline from Claude headline if present
+    if _dynamic.get("headline"):
+        D = REPORT_DATA if "REPORT_DATA" in dir() else {}
+
+# Build PDF into memory buffer
 OUT = io.BytesIO()
 c = canvas.Canvas(OUT, pagesize=LETTER)
-c.setTitle(f"HelixIQ {package_name}")
+c.setTitle(f"HelixIQ {_pkg_name}")
 c.setAuthor("HelixIQ")
 
-# ── COVER B + REPORT ──
+# Cover
 cover_B(c)
 c.showPage()
 
-PAGE_ROUTES = {
-    "nutrition": [page_wins, page_risks, page_supplements, page_shopping, page_diet, page_family, page_actions, page_variants, page_back],
-    "disease_risk": [page_wins, page_risks, page_family, page_actions, page_variants, page_back],
-    "athletic": [page_wins, page_risks, page_supplements, page_diet, page_actions, page_variants, page_back],
-    "full_report": [page_wins, page_risks, page_supplements, page_shopping, page_diet, page_family, page_actions, page_variants, page_back],
-}
-
-report_pages = PAGE_ROUTES.get(package_key, PAGE_ROUTES["nutrition"])
+report_pages = [
+    page_wins,
+    page_risks,
+    page_supplements,
+    page_shopping,
+    page_diet,
+    page_family,
+    page_actions,
+    page_variants,
+    page_back,
+]
 
 for i, fn in enumerate(report_pages):
     fn(c)
