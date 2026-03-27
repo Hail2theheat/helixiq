@@ -1323,7 +1323,8 @@ def page_diet(c):
     cw3 = (CW - 16) / 3
     row1_y = H - 140
 
-    for i in range(3):
+    row1_count = min(3, len(DIET_SECTIONS))
+    for i in range(row1_count):
         sec = DIET_SECTIONS[i]
         card_top = row1_y
         card_h   = 150
@@ -1369,7 +1370,8 @@ def page_diet(c):
     cw2   = (CW - 8) / 2
     row2_y = row1_y - 158
 
-    for i in range(2):
+    row2_count = min(2, len(DIET_SECTIONS) - 3)
+    for i in range(row2_count):
         sec      = DIET_SECTIONS[3 + i]
         card_h   = 148
         cx_card  = ML + i * (cw2 + 8)
