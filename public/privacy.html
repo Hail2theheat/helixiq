@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HelixIQ — Privacy Policy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:    #0a0a0f;
+    --ink2:   #12121a;
+    --gold:   #c9a84c;
+    --gold2:  #e8c97a;
+    --paper:  #f5f2eb;
+    --muted:  #8a8070;
+  }
+
+  body {
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px;
+    background: rgba(10,10,15,0.97);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+  }
+  .logo {
+    font-family: 'Gloock', serif;
+    font-size: 1.2rem; color: var(--gold); letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+  .logo span { color: var(--paper); font-family: 'Instrument Sans', sans-serif; font-weight: 400; }
+  .nav-cta {
+    background: var(--gold); color: var(--ink);
+    border: none; padding: 10px 24px; font-size: 0.8rem;
+    font-family: 'Instrument Sans', sans-serif;
+    font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s;
+    text-decoration: none; display: inline-block;
+  }
+  .nav-cta:hover { background: var(--gold2); }
+
+  .content {
+    max-width: 720px; margin: 0 auto;
+    padding: 140px 48px 100px;
+  }
+
+  .page-label {
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); opacity: 0.6; margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Gloock', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400; line-height: 1.15;
+    margin-bottom: 12px;
+  }
+
+  .updated {
+    font-size: 0.8rem; color: var(--muted); margin-bottom: 48px;
+  }
+
+  h2 {
+    font-family: 'Gloock', serif;
+    font-size: 1.4rem; font-weight: 400;
+    margin-top: 48px; margin-bottom: 16px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+
+  h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+
+  p {
+    font-size: 0.92rem; color: rgba(245,242,235,0.6);
+    line-height: 1.8; margin-bottom: 16px;
+  }
+
+  ul {
+    list-style: none; margin-bottom: 16px; padding-left: 0;
+  }
+
+  ul li {
+    font-size: 0.92rem; color: rgba(245,242,235,0.6);
+    line-height: 1.8; padding: 4px 0 4px 20px;
+    position: relative;
+  }
+
+  ul li::before {
+    content: '—'; color: var(--gold); opacity: 0.5;
+    position: absolute; left: 0;
+  }
+
+  strong { color: var(--paper); font-weight: 600; }
+
+  a { color: var(--gold); }
+
+  footer {
+    padding: 32px 48px;
+    border-top: 1px solid rgba(201,168,76,0.08);
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.78rem; color: rgba(245,242,235,0.25);
+  }
+  footer a { color: rgba(245,242,235,0.35); text-decoration: none; }
+  footer a:hover { color: var(--gold); }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .content { padding: 120px 24px 72px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Helix<span>IQ</span></a>
+  <a href="/#get-report" class="nav-cta">Get My Report</a>
+</nav>
+
+<div class="content">
+  <p class="page-label">Legal</p>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated: April 2025</p>
+
+  <h2>What we collect</h2>
+  <p>When you use HelixIQ, we collect only what is necessary to deliver your report:</p>
+  <ul>
+    <li><strong>Email address</strong> — provided at checkout so we can deliver your report PDF.</li>
+    <li><strong>Raw DNA file</strong> — uploaded by you after payment, used solely to generate your report.</li>
+    <li><strong>Payment information</strong> — handled entirely by Stripe. We never see or store your credit card details.</li>
+  </ul>
+
+  <h2>How we handle your DNA data</h2>
+  <p>Your raw DNA file is the most sensitive data you can share. We treat it accordingly:</p>
+  <ul>
+    <li>Your file is processed in memory and <strong>permanently deleted the moment your report is generated and emailed</strong>.</li>
+    <li>We do not write your DNA data to disk, archive it, or back it up.</li>
+    <li>Once your report is sent, there is no copy of your raw file on our servers. It is gone.</li>
+  </ul>
+
+  <h2>What we do not do</h2>
+  <ul>
+    <li>We do <strong>not</strong> sell your data to pharmaceutical companies, insurers, researchers, or any third party.</li>
+    <li>We do <strong>not</strong> share your genetic information with anyone for any reason.</li>
+    <li>We do <strong>not</strong> create a user account or profile for you. There is no login, no dashboard, and no stored data after delivery.</li>
+    <li>We do <strong>not</strong> use your data for research, training, or any purpose beyond generating the report you purchased.</li>
+  </ul>
+
+  <h2>Payment processing</h2>
+  <p>All payments are processed by <strong>Stripe</strong>, the same payment infrastructure used by Amazon, Google, and millions of other businesses. We never receive, see, or store your credit card number, expiration date, or CVV. Stripe's privacy policy governs payment data.</p>
+
+  <h2>Email</h2>
+  <p>We use your email address solely to deliver your report. We do not add you to a mailing list, send marketing emails, or share your email with third parties. After your report is delivered, we retain your email only in our payment records through Stripe.</p>
+
+  <h2>Cookies and tracking</h2>
+  <p>HelixIQ does not use cookies, analytics trackers, or third-party scripts that monitor your behavior. The site loads fonts from Google Fonts — that is the only external request made.</p>
+
+  <h2>Data retention</h2>
+  <ul>
+    <li><strong>DNA files</strong> — deleted immediately after report generation. Zero retention.</li>
+    <li><strong>Generated reports</strong> — emailed to you and then not stored on our servers.</li>
+    <li><strong>Payment records</strong> — retained by Stripe per their data retention policies and applicable financial regulations.</li>
+  </ul>
+
+  <h2>Your rights</h2>
+  <p>Because we do not retain your genetic data or create user profiles, there is nothing to request deletion of. If you have any questions about your data or want to confirm that nothing is stored, contact us at <a href="mailto:support@myhelixiq.com">support@myhelixiq.com</a>.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>If we update this privacy policy, we will revise the "Last updated" date at the top. Material changes will be communicated clearly on our website.</p>
+
+  <h2>Contact</h2>
+  <p>For privacy questions or concerns, email <a href="mailto:support@myhelixiq.com">support@myhelixiq.com</a>.</p>
+</div>
+
+<footer>
+  <div class="logo" style="font-size:1rem;"><a href="/" style="text-decoration:none;color:var(--gold);">Helix<span style="color:var(--paper);font-family:'Instrument Sans',sans-serif;font-weight:400;">IQ</span></a></div>
+  <div style="display:flex;gap:24px;">
+    <a href="/privacy.html">Privacy Policy</a>
+    <a href="/terms.html">Terms</a>
+    <a href="mailto:support@myhelixiq.com">support@myhelixiq.com</a>
+  </div>
+  <div>&copy; 2025 HelixIQ</div>
+</footer>
+
+</body>
+</html>
