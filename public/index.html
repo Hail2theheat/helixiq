@@ -3,380 +3,307 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HelixIQ — Unlock Your DNA's Secrets</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>HelixIQ — Know What Your DNA Is Actually Telling You</title>
 <style>
-  :root {
-    --ink: #0a0a0f;
-    --paper: #f5f2eb;
-    --gold: #c9a84c;
-    --gold-light: #e8c97a;
-    --gold-pale: #f7efd8;
-    --muted: #6b6555;
-    --accent: #1a2744;
-    --border: rgba(201,168,76,0.25);
-  }
+  @import url('https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500;600&display=swap');
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:    #0a0a0f;
+    --ink2:   #12121a;
+    --accent: #1a2744;
+    --gold:   #c9a84c;
+    --gold2:  #e8c97a;
+    --paper:  #f5f2eb;
+    --muted:  #8a8070;
+    --green:  #4ecca3;
+  }
+
   html { scroll-behavior: smooth; }
+
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Instrument Sans', sans-serif;
     background: var(--ink);
     color: var(--paper);
     overflow-x: hidden;
   }
 
-  /* NAV */
+  /* ── NAV ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    padding: 20px 48px;
     display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px;
     background: linear-gradient(to bottom, rgba(10,10,15,0.95) 0%, transparent 100%);
     backdrop-filter: blur(8px);
   }
   .logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.6rem; font-weight: 600; letter-spacing: 0.04em;
-    color: var(--gold);
-    text-decoration: none;
+    font-family: 'Gloock', serif;
+    font-size: 1.2rem; color: var(--gold); letter-spacing: 0.04em;
   }
-  .logo span { font-style: italic; font-weight: 300; color: var(--paper); }
-  nav ul { list-style: none; display: flex; gap: 36px; }
-  nav ul a { color: rgba(245,242,235,0.7); text-decoration: none; font-size: 0.88rem; letter-spacing: 0.05em; font-weight: 300; transition: color 0.2s; }
-  nav ul a:hover { color: var(--gold); }
+  .logo span { color: var(--paper); font-family: 'Instrument Sans', sans-serif; font-weight: 400; }
   .nav-cta {
     background: var(--gold); color: var(--ink);
-    padding: 10px 24px; border-radius: 2px;
-    font-size: 0.82rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
-    text-decoration: none; transition: background 0.2s;
+    border: none; padding: 10px 24px; font-size: 0.8rem;
+    font-family: 'Instrument Sans', sans-serif;
+    font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s;
+    text-decoration: none; display: inline-block;
   }
-  .nav-cta:hover { background: var(--gold-light); }
+  .nav-cta:hover { background: var(--gold2); }
 
-  /* HERO */
+  /* ── HERO ── */
   .hero {
     min-height: 100vh;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+    padding: 140px 48px 80px;
     position: relative; overflow: hidden;
-    padding: 120px 24px 80px;
-    text-align: center;
   }
-  .hero-bg {
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(26,39,68,0.7) 0%, transparent 70%),
-                radial-gradient(ellipse 40% 40% at 80% 80%, rgba(201,168,76,0.08) 0%, transparent 60%);
+  .hero::before {
+    content: '';
+    position: absolute; top: -20%; right: -10%;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+    pointer-events: none;
   }
-  /* DNA helix decoration */
-  .helix-left, .helix-right {
-    position: absolute; top: 10%; height: 80%;
-    opacity: 0.12; pointer-events: none;
-  }
-  .helix-left { left: 4%; }
-  .helix-right { right: 4%; transform: scaleX(-1); }
   .hero-eyebrow {
-    font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--gold); font-weight: 400; margin-bottom: 24px;
-    position: relative;
-    display: flex; align-items: center; gap: 12px;
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); opacity: 0.7; margin-bottom: 24px;
   }
-  .hero-eyebrow::before, .hero-eyebrow::after {
-    content: ''; display: block; width: 40px; height: 1px; background: var(--gold); opacity: 0.5;
+  .hero h1 {
+    font-family: 'Gloock', serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 400; line-height: 1.08;
+    max-width: 800px; margin-bottom: 12px;
   }
-  h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(3.2rem, 7vw, 6.5rem);
-    font-weight: 300; line-height: 1.05; letter-spacing: -0.01em;
-    max-width: 820px; position: relative;
-  }
-  h1 em { font-style: italic; color: var(--gold); }
+  .hero h1 em { color: var(--gold); font-style: italic; }
   .hero-sub {
-    margin-top: 28px; font-size: 1.08rem; color: rgba(245,242,235,0.65);
-    max-width: 520px; line-height: 1.7; font-weight: 300; position: relative;
+    font-size: 1.05rem; color: rgba(245,242,235,0.55); line-height: 1.7;
+    max-width: 520px; margin-bottom: 48px; margin-top: 16px;
   }
-  .hero-actions {
-    display: flex; gap: 16px; margin-top: 48px; position: relative;
-    align-items: center; flex-wrap: wrap; justify-content: center;
+  .hero-price {
+    display: flex; align-items: baseline; gap: 12px; margin-bottom: 32px;
+  }
+  .hero-price .amount {
+    font-family: 'Gloock', serif; font-size: 3rem; color: var(--gold);
+  }
+  .hero-price .desc {
+    font-size: 0.85rem; color: var(--muted); line-height: 1.5;
   }
   .btn-primary {
+    display: inline-block;
     background: var(--gold); color: var(--ink);
-    padding: 16px 40px; border-radius: 2px;
-    font-size: 0.85rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
-    text-decoration: none; transition: all 0.25s; cursor: pointer;
-    border: none; display: inline-block;
+    border: none; padding: 18px 48px;
+    font-size: 0.85rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'Instrument Sans', sans-serif;
+    text-decoration: none;
   }
-  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 8px 32px rgba(201,168,76,0.3); }
-  .btn-secondary {
-    border: 1px solid rgba(245,242,235,0.2); color: rgba(245,242,235,0.8);
-    padding: 16px 32px; border-radius: 2px;
-    font-size: 0.85rem; font-weight: 300; letter-spacing: 0.06em;
-    text-decoration: none; transition: all 0.2s;
+  .btn-primary:hover { background: var(--gold2); transform: translateY(-1px); }
+  .hero-note {
+    margin-top: 16px; font-size: 0.78rem;
+    color: rgba(245,242,235,0.3); display: flex; align-items: center; gap: 8px;
   }
-  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
-  .hero-trust {
-    margin-top: 72px; position: relative;
-    display: flex; align-items: center; gap: 32px;
-    font-size: 0.8rem; color: rgba(245,242,235,0.4); letter-spacing: 0.06em;
-    flex-wrap: wrap; justify-content: center;
-  }
-  .hero-trust-item { display: flex; align-items: center; gap: 8px; }
-  .trust-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); opacity: 0.6; }
+  .hero-note::before { content: '🔒'; font-size: 0.85rem; }
 
-  /* DIVIDER */
-  .section-divider {
-    height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent);
-    opacity: 0.2; margin: 0 10%;
-  }
+  /* ── SECTION WRAPPER ── */
+  section { padding: 100px 48px; }
 
-  /* HOW IT WORKS */
-  .how-section {
-    padding: 120px 48px;
-    max-width: 1100px; margin: 0 auto;
+  /* ── WHAT YOU GET ── */
+  .what {
+    background: var(--ink2);
+    border-top: 1px solid rgba(201,168,76,0.12);
+    border-bottom: 1px solid rgba(201,168,76,0.12);
   }
-  .section-header { text-align: center; margin-bottom: 80px; }
   .section-label {
-    font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--gold); font-weight: 400; margin-bottom: 16px;
-    display: block;
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); opacity: 0.6; margin-bottom: 16px;
   }
-  h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(2.4rem, 4vw, 3.6rem);
-    font-weight: 300; line-height: 1.15;
+  .section-title {
+    font-family: 'Gloock', serif; font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 400; line-height: 1.2; margin-bottom: 16px;
   }
-  h2 em { font-style: italic; color: var(--gold); }
   .section-sub {
-    margin-top: 16px; color: rgba(245,242,235,0.55); font-weight: 300;
-    font-size: 1rem; line-height: 1.7;
+    color: rgba(245,242,235,0.5); font-size: 1rem; line-height: 1.7;
+    max-width: 540px; margin-bottom: 64px;
   }
-  .steps-grid {
-    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px;
-    background: var(--border);
-    border: 1px solid var(--border);
+  .what-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2px;
   }
-  .step {
-    background: var(--ink);
-    padding: 56px 40px;
-    position: relative; overflow: hidden;
-    transition: background 0.3s;
+  .what-item {
+    background: var(--ink); padding: 36px 32px;
+    border: 1px solid rgba(201,168,76,0.08);
+    transition: border-color 0.2s;
   }
-  .step:hover { background: rgba(26,39,68,0.4); }
-  .step-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 5rem; font-weight: 300; line-height: 1;
-    color: rgba(201,168,76,0.12); position: absolute;
-    top: 24px; right: 32px;
+  .what-item:hover { border-color: rgba(201,168,76,0.25); }
+  .what-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; margin-bottom: 20px;
   }
-  .step-icon {
-    width: 48px; height: 48px; margin-bottom: 28px;
-    border: 1px solid var(--border);
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    color: var(--gold); font-size: 1.2rem;
+  .what-item h3 {
+    font-family: 'Gloock', serif; font-size: 1.1rem;
+    font-weight: 400; margin-bottom: 10px;
   }
-  .step h3 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.6rem; font-weight: 400; margin-bottom: 12px;
+  .what-item p {
+    font-size: 0.88rem; color: rgba(245,242,235,0.5); line-height: 1.65;
   }
-  .step p { color: rgba(245,242,235,0.55); font-size: 0.92rem; line-height: 1.7; font-weight: 300; }
 
-  /* PRICING */
-  .pricing-section {
-    padding: 120px 48px;
-    background: rgba(245,242,235,0.015);
+  /* ── HOW IT WORKS ── */
+  .how { max-width: 900px; margin: 0 auto; }
+  .steps { display: flex; flex-direction: column; gap: 0; margin-top: 56px; }
+  .step {
+    display: grid; grid-template-columns: 64px 1fr;
+    gap: 32px; padding: 40px 0;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
     position: relative;
   }
-  .pricing-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
-    max-width: 1200px; margin: 0 auto;
-    background: var(--border);
-    border: 1px solid var(--border);
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    font-family: 'Gloock', serif; font-size: 3rem;
+    color: var(--gold); opacity: 0.25; line-height: 1; align-self: start;
+    padding-top: 4px;
   }
-  .pricing-card {
-    background: var(--ink);
-    padding: 48px 32px 40px;
-    position: relative; overflow: hidden;
-    display: flex; flex-direction: column;
-    transition: background 0.3s;
+  .step-content h3 {
+    font-family: 'Gloock', serif; font-size: 1.4rem;
+    font-weight: 400; margin-bottom: 12px;
   }
-  .pricing-card:hover { background: rgba(26,39,68,0.5); }
-  .pricing-card.featured {
+  .step-content p {
+    color: rgba(245,242,235,0.55); font-size: 0.92rem; line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .dna-instructions {
+    background: rgba(201,168,76,0.04); border: 1px solid rgba(201,168,76,0.12);
+    padding: 20px 24px; margin-top: 8px;
+  }
+  .dna-instructions h4 {
+    font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--gold); opacity: 0.7; margin-bottom: 14px;
+  }
+  .dna-co {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .dna-co-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 0.85rem; color: rgba(245,242,235,0.6); line-height: 1.5;
+  }
+  .dna-co-name {
+    color: var(--paper); font-weight: 600; min-width: 110px; flex-shrink: 0;
+  }
+
+  /* ── PRIVACY ── */
+  .privacy {
     background: var(--accent);
-    border-top: 2px solid var(--gold);
+    border-top: 1px solid rgba(201,168,76,0.15);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
   }
-  .pricing-card.featured:hover { background: rgba(26,39,68,0.9); }
-  .featured-badge {
-    position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
-    background: var(--gold); color: var(--ink);
-    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
-    padding: 4px 14px; font-weight: 500;
+  .privacy-inner {
+    max-width: 800px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 64px;
+    align-items: start;
   }
-  .card-label {
-    font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--gold); font-weight: 400; margin-bottom: 16px;
+  .privacy-left .section-title { font-size: clamp(1.6rem, 2.5vw, 2.2rem); }
+  .privacy-left p {
+    color: rgba(245,242,235,0.6); font-size: 0.95rem; line-height: 1.75;
+    margin-top: 16px;
   }
-  .card-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.8rem; font-weight: 400; margin-bottom: 8px; line-height: 1.15;
+  .privacy-pledges { display: flex; flex-direction: column; gap: 20px; margin-top: 8px; }
+  .pledge {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 20px; background: rgba(10,10,15,0.4);
+    border-left: 2px solid var(--gold);
   }
-  .card-desc { color: rgba(245,242,235,0.45); font-size: 0.85rem; line-height: 1.6; font-weight: 300; margin-bottom: 32px; flex-grow: 1; }
-  .price {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 3rem; font-weight: 300; line-height: 1;
-    margin-bottom: 4px;
+  .pledge-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+  .pledge-text h4 {
+    font-size: 0.88rem; font-weight: 600; margin-bottom: 4px; color: var(--paper);
   }
-  .price sup { font-size: 1.2rem; vertical-align: top; margin-top: 8px; }
-  .price-note { font-size: 0.78rem; color: rgba(245,242,235,0.35); margin-bottom: 28px; font-weight: 300; }
-  .card-features { list-style: none; margin-bottom: 36px; }
-  .card-features li {
-    font-size: 0.85rem; color: rgba(245,242,235,0.6); font-weight: 300;
-    padding: 8px 0; border-bottom: 1px solid rgba(201,168,76,0.08);
-    display: flex; align-items: flex-start; gap: 10px; line-height: 1.4;
-  }
-  .card-features li::before { content: '—'; color: var(--gold); opacity: 0.6; flex-shrink: 0; font-size: 0.7rem; margin-top: 2px; }
-  .card-btn {
-    display: block; text-align: center; text-decoration: none;
-    padding: 14px; border-radius: 2px;
-    font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500;
-    transition: all 0.2s; cursor: pointer; border: none;
-  }
-  .card-btn-outline {
-    border: 1px solid var(--border); color: rgba(245,242,235,0.7);
-    background: transparent;
-  }
-  .card-btn-outline:hover { border-color: var(--gold); color: var(--gold); }
-  .card-btn-solid { background: var(--gold); color: var(--ink); }
-  .card-btn-solid:hover { background: var(--gold-light); }
-
-  /* TESTIMONIAL STRIPE */
-  .testimonial-section {
-    padding: 80px 48px;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    text-align: center;
-  }
-  .testimonial-quote {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
-    font-weight: 300; font-style: italic;
-    max-width: 780px; margin: 0 auto 24px;
-    line-height: 1.5; color: rgba(245,242,235,0.85);
-  }
-  .testimonial-attr { font-size: 0.8rem; color: var(--gold); letter-spacing: 0.12em; }
-
-  /* HOW DNA SECTION */
-  .dna-section {
-    padding: 120px 48px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center;
-    max-width: 1100px; margin: 0 auto;
-  }
-  .dna-visual {
-    aspect-ratio: 1; border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    position: relative; overflow: hidden;
-    background: radial-gradient(ellipse at center, rgba(26,39,68,0.5) 0%, transparent 70%);
-  }
-  .dna-visual svg { opacity: 0.7; }
-  .dna-content h2 { text-align: left; margin-bottom: 24px; }
-  .dna-content p { color: rgba(245,242,235,0.55); font-weight: 300; line-height: 1.8; font-size: 0.95rem; margin-bottom: 20px; }
-  .stat-row { display: flex; gap: 40px; margin-top: 40px; }
-  .stat { }
-  .stat-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 2.8rem; font-weight: 300; color: var(--gold); line-height: 1;
-  }
-  .stat-label { font-size: 0.78rem; color: rgba(245,242,235,0.4); margin-top: 4px; letter-spacing: 0.05em; }
-
-  /* FAQ */
-  .faq-section {
-    padding: 120px 48px;
-    max-width: 780px; margin: 0 auto;
-  }
-  .faq-item {
-    border-bottom: 1px solid var(--border);
-    padding: 28px 0;
-    cursor: pointer;
-  }
-  .faq-q {
-    display: flex; justify-content: space-between; align-items: flex-start;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.3rem; font-weight: 400; gap: 20px;
-    user-select: none;
-  }
-  .faq-toggle {
-    color: var(--gold); font-size: 1.2rem; flex-shrink: 0;
-    transition: transform 0.3s; display: inline-block; line-height: 1;
-    margin-top: 2px;
-  }
-  .faq-a {
-    display: none; padding-top: 16px;
-    color: rgba(245,242,235,0.55); font-size: 0.92rem; line-height: 1.8; font-weight: 300;
-  }
-  .faq-item.open .faq-toggle { transform: rotate(45deg); }
-  .faq-item.open .faq-a { display: block; }
-
-  /* DISCLAIMER */
-  .disclaimer-bar {
-    background: rgba(245,242,235,0.03);
-    border-top: 1px solid var(--border);
-    padding: 28px 48px;
-    text-align: center;
-  }
-  .disclaimer-bar p {
-    font-size: 0.78rem; color: rgba(245,242,235,0.3);
-    max-width: 800px; margin: 0 auto; line-height: 1.7; font-weight: 300;
+  .pledge-text p {
+    font-size: 0.82rem; color: rgba(245,242,235,0.5); line-height: 1.55;
   }
 
-  /* FOOTER */
+  /* ── SAMPLE REPORT ── */
+  .sample { background: var(--ink2); }
+  .sample-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+    margin-top: 56px; max-width: 900px;
+  }
+  .sample-card {
+    background: var(--ink); padding: 28px;
+    border: 1px solid rgba(201,168,76,0.08);
+  }
+  .sample-tag {
+    font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--green); margin-bottom: 10px; display: block;
+  }
+  .sample-card h3 {
+    font-family: 'Gloock', serif; font-size: 1.1rem;
+    font-weight: 400; margin-bottom: 8px;
+  }
+  .sample-card p { font-size: 0.84rem; color: rgba(245,242,235,0.5); line-height: 1.6; }
+
+  /* ── FINAL CTA ── */
+  .final-cta {
+    text-align: center; padding: 120px 48px;
+    background: var(--ink);
+    border-top: 1px solid rgba(201,168,76,0.12);
+  }
+  .final-cta .section-title { max-width: 600px; margin: 0 auto 12px; }
+  .final-cta .section-sub { max-width: 480px; margin: 0 auto 48px; }
+  .final-price-block {
+    display: inline-flex; flex-direction: column; align-items: center;
+    gap: 6px; margin-bottom: 36px;
+  }
+  .final-price-block .big-price {
+    font-family: 'Gloock', serif; font-size: 4rem; color: var(--gold);
+  }
+  .final-price-block .one-time {
+    font-size: 0.78rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .final-note {
+    margin-top: 20px; font-size: 0.78rem;
+    color: rgba(245,242,235,0.25); line-height: 1.6;
+  }
+
+  /* ── FOOTER ── */
   footer {
-    padding: 60px 48px 40px;
-    border-top: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: flex-end;
-    flex-wrap: wrap; gap: 24px;
+    padding: 32px 48px;
+    border-top: 1px solid rgba(201,168,76,0.08);
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.78rem; color: rgba(245,242,235,0.25);
   }
-  .footer-logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.4rem; color: var(--gold);
-  }
-  .footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
-  .footer-links a { color: rgba(245,242,235,0.3); font-size: 0.8rem; text-decoration: none; transition: color 0.2s; }
-  .footer-links a:hover { color: var(--gold); }
-  .footer-copy { font-size: 0.75rem; color: rgba(245,242,235,0.2); width: 100%; text-align: right; }
+  footer a { color: rgba(245,242,235,0.35); text-decoration: none; }
+  footer a:hover { color: var(--gold); }
 
-  /* CTA SECTION */
-  .cta-section {
-    padding: 120px 48px;
-    text-align: center;
-    position: relative; overflow: hidden;
+  /* ── DIVIDER ── */
+  .gold-line {
+    height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent);
+    opacity: 0.2; margin: 0;
   }
-  .cta-section::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse 70% 70% at center, rgba(26,39,68,0.5) 0%, transparent 70%);
-  }
-  .cta-section h2 { max-width: 600px; margin: 0 auto 32px; position: relative; }
-  .cta-section p { color: rgba(245,242,235,0.5); margin-bottom: 40px; position: relative; font-weight: 300; }
-  .cta-actions { position: relative; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 
-  /* ANIMATIONS */
+  /* ── ANIMATIONS ── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-  .hero > * { animation: fadeUp 0.8s ease forwards; opacity: 0; }
-  .hero > *:nth-child(1) { animation-delay: 0.1s; }
-  .hero > *:nth-child(2) { animation-delay: 0.25s; }
-  .hero > *:nth-child(3) { animation-delay: 0.35s; }
-  .hero > *:nth-child(4) { animation-delay: 0.45s; }
-  .hero > *:nth-child(5) { animation-delay: 0.55s; }
-  .hero > *:nth-child(6) { animation-delay: 0.65s; }
+  .hero > * { animation: fadeUp 0.7s ease both; }
+  .hero-eyebrow { animation-delay: 0.1s; }
+  .hero h1      { animation-delay: 0.22s; }
+  .hero-sub     { animation-delay: 0.34s; }
+  .hero-price   { animation-delay: 0.42s; }
+  .btn-primary  { animation-delay: 0.50s; }
+  .hero-note    { animation-delay: 0.58s; }
 
-  @media (max-width: 900px) {
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
     nav { padding: 16px 24px; }
-    nav ul { display: none; }
-    .how-section, .pricing-section, .faq-section, .cta-section { padding: 80px 24px; }
-    .steps-grid, .pricing-grid { grid-template-columns: 1fr; }
-    .dna-section { grid-template-columns: 1fr; gap: 48px; padding: 80px 24px; }
-    .dna-visual { display: none; }
-    footer { padding: 40px 24px 28px; }
-    .footer-copy { text-align: left; }
+    .hero { padding: 120px 24px 60px; }
+    section { padding: 72px 24px; }
+    .privacy-inner { grid-template-columns: 1fr; gap: 40px; }
+    .sample-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
   }
 </style>
 </head>
@@ -384,344 +311,249 @@
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="logo">Helix<span>IQ</span></a>
-  <ul>
-    <li><a href="#how">How It Works</a></li>
-    <li><a href="#pricing">Reports</a></li>
-    <li><a href="#faq">FAQ</a></li>
-  </ul>
-  <a href="#pricing" class="nav-cta">Get Your Report</a>
+  <div class="logo">Helix<span>IQ</span></div>
+  <a href="#get-report" class="nav-cta">Get My Report — $49</a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-bg"></div>
-  <!-- DNA Helix SVG Left -->
-  <svg class="helix-left" viewBox="0 0 80 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M40 0 Q80 50 40 100 Q0 150 40 200 Q80 250 40 300 Q0 350 40 400 Q80 450 40 500 Q0 550 40 600" stroke="#c9a84c" stroke-width="1.5" fill="none"/>
-    <path d="M40 0 Q0 50 40 100 Q80 150 40 200 Q0 250 40 300 Q80 350 40 400 Q0 450 40 500 Q80 550 40 600" stroke="#c9a84c" stroke-width="1.5" fill="none"/>
-    <line x1="15" y1="50" x2="65" y2="50" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="5" y1="100" x2="75" y2="100" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="15" y1="150" x2="65" y2="150" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="5" y1="200" x2="75" y2="200" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="15" y1="250" x2="65" y2="250" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="5" y1="300" x2="75" y2="300" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="15" y1="350" x2="65" y2="350" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="5" y1="400" x2="75" y2="400" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="15" y1="450" x2="65" y2="450" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="5" y1="500" x2="75" y2="500" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="15" y1="550" x2="65" y2="550" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-  </svg>
-  <svg class="helix-right" viewBox="0 0 80 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M40 0 Q80 50 40 100 Q0 150 40 200 Q80 250 40 300 Q0 350 40 400 Q80 450 40 500 Q0 550 40 600" stroke="#c9a84c" stroke-width="1.5" fill="none"/>
-    <path d="M40 0 Q0 50 40 100 Q80 150 40 200 Q0 250 40 300 Q80 350 40 400 Q0 450 40 500 Q80 550 40 600" stroke="#c9a84c" stroke-width="1.5" fill="none"/>
-    <line x1="15" y1="50" x2="65" y2="50" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="5" y1="100" x2="75" y2="100" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="15" y1="150" x2="65" y2="150" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="5" y1="200" x2="75" y2="200" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="15" y1="250" x2="65" y2="250" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="5" y1="300" x2="75" y2="300" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="15" y1="350" x2="65" y2="350" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="5" y1="400" x2="75" y2="400" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="15" y1="450" x2="65" y2="450" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="5" y1="500" x2="75" y2="500" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-    <line x1="15" y1="550" x2="65" y2="550" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-  </svg>
-
-  <div class="hero-eyebrow">AI-Powered DNA Analysis</div>
-  <h1>Your genome has<br>answers you've <em>never</em><br>been shown</h1>
-  <p class="hero-sub">Upload your raw 23andMe or AncestryDNA file and receive a comprehensive, AI-generated health report — delivered to your inbox in minutes.</p>
-  <div class="hero-actions">
-    <a href="#pricing" class="btn-primary">See Report Packages</a>
-    <a href="#how" class="btn-secondary">How It Works</a>
+  <p class="hero-eyebrow">Personalized DNA Analysis</p>
+  <h1>Your supplements should<br>be based on <em>your</em> DNA.<br>Not a guess.</h1>
+  <p class="hero-sub">Upload your raw 23andMe or AncestryDNA file and receive a personalized report showing exactly what your genome says about how you absorb vitamins, process supplements, and respond to nutrients.</p>
+  <div class="hero-price">
+    <span class="amount">$49</span>
+    <span class="desc">One-time payment<br>PDF delivered to your inbox</span>
   </div>
-  <div class="hero-trust">
-    <div class="hero-trust-item"><div class="trust-dot"></div>Works with 23andMe & AncestryDNA</div>
-    <div class="hero-trust-item"><div class="trust-dot"></div>Raw files deleted immediately after analysis</div>
-    <div class="hero-trust-item"><div class="trust-dot"></div>Reports delivered within minutes</div>
+  <a href="#get-report" class="btn-primary">Get My Report</a>
+  <p class="hero-note">Your DNA file is permanently deleted after analysis. Never stored, never sold.</p>
+</section>
+
+<div class="gold-line"></div>
+
+<!-- WHAT YOU GET -->
+<section class="what">
+  <p class="section-label">What's Inside</p>
+  <h2 class="section-title">Everything your genome knows<br>about nutrition and supplements</h2>
+  <p class="section-sub">700,000+ SNP variants analyzed. Every finding tied to a specific daily action.</p>
+  <div class="what-grid">
+    <div class="what-item">
+      <div class="what-icon">⚡</div>
+      <h3>Top 5 Genetic Advantages</h3>
+      <p>The nutrients and supplements your body is genetically primed to use well — and how to double down on them.</p>
+    </div>
+    <div class="what-item">
+      <div class="what-icon">⚠</div>
+      <h3>Top 5 Areas to Address</h3>
+      <p>Variants that affect how you absorb or process specific nutrients — with clear, actionable steps to compensate.</p>
+    </div>
+    <div class="what-item">
+      <div class="what-icon">💊</div>
+      <h3>Your Supplement Stack</h3>
+      <p>A genome-specific protocol with exact forms, doses, and what to look for on the label. No generic recommendations.</p>
+    </div>
+    <div class="what-item">
+      <div class="what-icon">🥗</div>
+      <h3>Dietary Blueprint</h3>
+      <p>Your optimal eating pattern based on how your body handles carbs, fats, and folate — with specific foods to eat more and less of.</p>
+    </div>
+    <div class="what-item">
+      <div class="what-icon">👨‍👩‍👧</div>
+      <h3>For Your Family</h3>
+      <p>What your partner and children should know about heritable variants that affect nutrition and supplement needs.</p>
+    </div>
+    <div class="what-item">
+      <div class="what-icon">🧬</div>
+      <h3>Key Variant Reference</h3>
+      <p>A clean table of every significant variant found — gene, genotype, status, and plain-English summary.</p>
+    </div>
   </div>
 </section>
 
-<div class="section-divider"></div>
+<div class="gold-line"></div>
 
 <!-- HOW IT WORKS -->
-<section class="how-section" id="how">
-  <div class="section-header">
-    <span class="section-label">The Process</span>
-    <h2>Three steps to <em>clarity</em></h2>
-    <p class="section-sub">From raw data file to personalized intelligence — in under five minutes.</p>
-  </div>
-  <div class="steps-grid">
-    <div class="step">
-      <div class="step-num">01</div>
-      <div class="step-icon">↓</div>
-      <h3>Export Your Raw Data</h3>
-      <p>Log into 23andMe or AncestryDNA and download your raw DNA data file (.txt format). This takes about 30 seconds and you only need to do it once.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">02</div>
-      <div class="step-icon">◈</div>
-      <h3>Choose Your Report</h3>
-      <p>Select from four report packages based on what matters most to you — nutrition, disease risk, athletic performance, or everything. Complete your secure payment.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">03</div>
-      <div class="step-icon">✦</div>
-      <h3>Receive Your Intelligence</h3>
-      <p>Upload your file on the confirmation page. Our AI analyzes your SNP variants and generates a detailed, personalized PDF report delivered straight to your inbox.</p>
-    </div>
-  </div>
-</section>
+<section id="get-report">
+  <div class="how">
+    <p class="section-label">How It Works</p>
+    <h2 class="section-title">Three steps.<br>Done in minutes.</h2>
+    <p class="section-sub">You already paid for a DNA test. Now actually use it.</p>
+    <div class="steps">
 
-<!-- TESTIMONIAL -->
-<div class="testimonial-section">
-  <p class="testimonial-quote">"I've had my 23andMe data for three years. HelixIQ showed me things about my nutrition needs I never knew existed in those files. The caffeine sensitivity finding alone changed how I structure my mornings."</p>
-  <div class="testimonial-attr">— M. Hernandez, HelixIQ Customer</div>
-</div>
-
-<!-- DNA SCIENCE SECTION -->
-<section class="dna-section">
-  <div class="dna-visual">
-    <svg width="300" height="300" viewBox="0 0 300 300">
-      <defs>
-        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.2"/>
-          <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <circle cx="150" cy="150" r="140" fill="url(#glow)"/>
-      <circle cx="150" cy="150" r="120" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.3"/>
-      <circle cx="150" cy="150" r="80" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.2"/>
-      <circle cx="150" cy="150" r="40" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.15"/>
-      <!-- Scatter dots representing SNPs -->
-      <circle cx="150" cy="30" r="3" fill="#c9a84c" opacity="0.6"/>
-      <circle cx="220" cy="80" r="2" fill="#c9a84c" opacity="0.4"/>
-      <circle cx="250" cy="150" r="3" fill="#c9a84c" opacity="0.7"/>
-      <circle cx="220" cy="220" r="2" fill="#c9a84c" opacity="0.5"/>
-      <circle cx="150" cy="270" r="3" fill="#c9a84c" opacity="0.6"/>
-      <circle cx="80" cy="220" r="2" fill="#c9a84c" opacity="0.4"/>
-      <circle cx="50" cy="150" r="3" fill="#c9a84c" opacity="0.7"/>
-      <circle cx="80" cy="80" r="2" fill="#c9a84c" opacity="0.5"/>
-      <circle cx="190" cy="60" r="2" fill="#c9a84c" opacity="0.3"/>
-      <circle cx="110" cy="200" r="2" fill="#c9a84c" opacity="0.4"/>
-      <circle cx="200" cy="190" r="2" fill="#c9a84c" opacity="0.35"/>
-      <text x="150" y="158" text-anchor="middle" font-family="'Cormorant Garamond', serif" font-size="12" fill="#c9a84c" opacity="0.7" letter-spacing="2">SNP</text>
-      <text x="150" y="174" text-anchor="middle" font-family="'Cormorant Garamond', serif" font-size="10" fill="#c9a84c" opacity="0.4" letter-spacing="3">ANALYSIS</text>
-    </svg>
-  </div>
-  <div class="dna-content">
-    <span class="section-label">The Science</span>
-    <h2>Over 700,000 <em>data points</em>, finally decoded</h2>
-    <p>Your 23andMe or AncestryDNA file contains hundreds of thousands of single nucleotide polymorphisms — tiny variations in your genetic code that influence everything from how you metabolize nutrients to your susceptibility to certain health conditions.</p>
-    <p>HelixIQ's AI cross-references your SNP variants against peer-reviewed genomic research to surface the insights most relevant to your health, performance, and longevity.</p>
-    <div class="stat-row">
-      <div class="stat">
-        <div class="stat-num">700k+</div>
-        <div class="stat-label">SNP variants analyzed</div>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h3>Download your raw DNA file</h3>
+          <p>You need the raw data file from your DNA testing company — not just your results page. Here's exactly how to get it:</p>
+          <div class="dna-instructions">
+            <h4>How to download your raw DNA file</h4>
+            <div class="dna-co">
+              <div class="dna-co-item">
+                <span class="dna-co-name">23andMe</span>
+                <span>Log in → click your name (top right) → Settings → Scroll to "23andMe Data" → Download Raw Data → select "All DNA Data" → confirm via email link</span>
+              </div>
+              <div class="dna-co-item">
+                <span class="dna-co-name">AncestryDNA</span>
+                <span>Log in → DNA → Settings → Download Raw DNA Data → confirm your password → download the .zip file → unzip to find your .txt file</span>
+              </div>
+              <div class="dna-co-item">
+                <span class="dna-co-name">MyHeritage</span>
+                <span>Log in → DNA → Manage DNA kits → Actions → Download DNA data → Raw genetic data → enter your password → download</span>
+              </div>
+              <div class="dna-co-item">
+                <span class="dna-co-name">FamilyTreeDNA</span>
+                <span>Log in → Manage Personal Information → Raw Data → Download Raw Data → select the file format → download</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="stat">
-        <div class="stat-num">4</div>
-        <div class="stat-label">specialized report types</div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h3>Pay once, securely</h3>
+          <p>$49 one-time payment via Stripe. No subscription, no hidden fees, no account required. You pay, you get your report. That's it.</p>
+        </div>
       </div>
-      <div class="stat">
-        <div class="stat-num">&lt;5min</div>
-        <div class="stat-label">report delivery</div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h3>Upload your file and receive your report</h3>
+          <p>After payment you'll land on a secure upload page. Upload your .txt file and we'll analyze 700,000+ variants using AI trained on current genomics research. Your report arrives in your inbox within 5 minutes as a beautifully designed PDF.</p>
+        </div>
+      </div>
+
+    </div>
+    <div style="margin-top: 56px; text-align: center;">
+      <a href="#" class="btn-primary" onclick="startCheckout(event)">Get My Report — $49</a>
+      <p class="hero-note" style="justify-content: center; margin-top: 14px;">Secure payment via Stripe · PDF delivered instantly · Data deleted immediately</p>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line"></div>
+
+<!-- PRIVACY -->
+<section class="privacy">
+  <div class="privacy-inner">
+    <div class="privacy-left">
+      <p class="section-label">Your Privacy</p>
+      <h2 class="section-title">We take this more seriously than you do.</h2>
+      <p>Your DNA contains the most personal information that exists about you. We built HelixIQ around a single non-negotiable rule: your raw data is never stored, period.</p>
+    </div>
+    <div class="privacy-pledges">
+      <div class="pledge">
+        <div class="pledge-icon">🗑</div>
+        <div class="pledge-text">
+          <h4>Deleted immediately after analysis</h4>
+          <p>The moment your report is sent, your raw DNA file is permanently deleted from our servers. Not archived. Not backed up. Gone.</p>
+        </div>
+      </div>
+      <div class="pledge">
+        <div class="pledge-icon">🚫</div>
+        <div class="pledge-text">
+          <h4>Never sold or shared</h4>
+          <p>We do not sell your data to pharmaceutical companies, insurance providers, researchers, or anyone else. Ever. No exceptions.</p>
+        </div>
+      </div>
+      <div class="pledge">
+        <div class="pledge-icon">🔒</div>
+        <div class="pledge-text">
+          <h4>No account, no profile</h4>
+          <p>We don't create a profile on you. No login required. No data retained after your report is delivered. We have nothing to breach.</p>
+        </div>
+      </div>
+      <div class="pledge">
+        <div class="pledge-icon">💳</div>
+        <div class="pledge-text">
+          <h4>Payment handled by Stripe</h4>
+          <p>We never see your credit card details. All payments are processed entirely by Stripe — the same infrastructure used by Amazon and Google.</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="section-divider"></div>
+<div class="gold-line"></div>
 
-<!-- PRICING -->
-<section class="pricing-section" id="pricing">
-  <div class="section-header">
-    <span class="section-label">Report Packages</span>
-    <h2>Choose your <em>intelligence</em></h2>
-    <p class="section-sub">One-time purchase. No subscription. Your report delivered as a beautiful PDF.</p>
-  </div>
-  <div class="pricing-grid">
-
-    <div class="pricing-card">
-      <div class="card-label">Package 01</div>
-      <div class="card-title">Nutrition &amp;<br>Supplements</div>
-      <p class="card-desc">Discover how your genes affect nutrient absorption, dietary sensitivities, and which supplements your body may actually need.</p>
-      <div class="price"><sup>$</sup>49</div>
-      <div class="price-note">one-time · PDF delivered by email</div>
-      <ul class="card-features">
-        <li>Vitamin &amp; mineral absorption variants</li>
-        <li>Caffeine &amp; alcohol metabolism</li>
-        <li>Lactose &amp; gluten sensitivity markers</li>
-        <li>Omega-3 &amp; saturated fat processing</li>
-        <li>Personalized supplement suggestions</li>
-      </ul>
-      <a href="#" class="card-btn card-btn-outline" onclick="handleCheckout(event, 'nutrition')">Get This Report</a>
+<!-- SAMPLE FINDINGS -->
+<section class="sample">
+  <p class="section-label">Sample Findings</p>
+  <h2 class="section-title">The kind of insights<br>you'll actually get</h2>
+  <p class="section-sub">Every finding is tied to a specific variant in your file — not generic advice pulled from the internet.</p>
+  <div class="sample-grid">
+    <div class="sample-card">
+      <span class="sample-tag">MTHFR · rs1801133</span>
+      <h3>You process folic acid less efficiently</h3>
+      <p>The C677T variant reduces MTHFR enzyme activity. You need methylfolate (5-MTHF), not folic acid — a distinction most supplements ignore.</p>
     </div>
-
-    <div class="pricing-card featured">
-      <div class="featured-badge">Most Popular</div>
-      <div class="card-label">Package 02</div>
-      <div class="card-title">Disease Risk &amp;<br>Prevention</div>
-      <p class="card-desc">Understand your genetic predispositions across dozens of conditions — and the evidence-backed lifestyle choices to address them.</p>
-      <div class="price"><sup>$</sup>79</div>
-      <div class="price-note">one-time · PDF delivered by email</div>
-      <ul class="card-features">
-        <li>Cardiovascular risk markers</li>
-        <li>Metabolic &amp; blood sugar variants</li>
-        <li>Inflammation &amp; immune system genes</li>
-        <li>Cancer predisposition indicators</li>
-        <li>Evidence-based prevention strategies</li>
-      </ul>
-      <a href="#" class="card-btn card-btn-solid" onclick="handleCheckout(event, 'disease_risk')">Get This Report</a>
+    <div class="sample-card">
+      <span class="sample-tag">VDR · rs2228570</span>
+      <h3>Strong vitamin D receptor response</h3>
+      <p>Your receptor variant means D3 you absorb goes further than average. Quality sunlight and D3+K2 supplementation are especially effective for you.</p>
     </div>
-
-    <div class="pricing-card">
-      <div class="card-label">Package 03</div>
-      <div class="card-title">Athletic<br>Performance</div>
-      <p class="card-desc">Optimize your training, recovery, and nutrition based on the genetic traits that define your athletic potential.</p>
-      <div class="price"><sup>$</sup>49</div>
-      <div class="price-note">one-time · PDF delivered by email</div>
-      <ul class="card-features">
-        <li>Power vs. endurance predisposition</li>
-        <li>VO₂ max &amp; oxygen efficiency</li>
-        <li>Injury risk &amp; tendon variants</li>
-        <li>Recovery speed &amp; muscle repair</li>
-        <li>Optimal training protocol suggestions</li>
-      </ul>
-      <a href="#" class="card-btn card-btn-outline" onclick="handleCheckout(event, 'athletic')">Get This Report</a>
+    <div class="sample-card">
+      <span class="sample-tag">CYP1A2 · rs762551</span>
+      <h3>Fast caffeine metabolizer</h3>
+      <p>You clear caffeine quickly. Your window for performance benefits is narrower — and afternoon coffee is less likely to disrupt your sleep than it would for slow metabolizers.</p>
     </div>
-
-    <div class="pricing-card">
-      <div class="card-label">Package 04</div>
-      <div class="card-title">Full Genome<br>Report</div>
-      <p class="card-desc">Every insight we offer, combined into one comprehensive deep-dive across nutrition, risk, performance, and longevity.</p>
-      <div class="price"><sup>$</sup>149</div>
-      <div class="price-note">one-time · PDF delivered by email</div>
-      <ul class="card-features">
-        <li>Everything in all three packages</li>
-        <li>Longevity &amp; aging gene variants</li>
-        <li>Sleep &amp; circadian rhythm analysis</li>
-        <li>Mental clarity &amp; cognitive markers</li>
-        <li>Full executive summary + action plan</li>
-      </ul>
-      <a href="#" class="card-btn card-btn-outline" onclick="handleCheckout(event, 'full_report')">Get This Report</a>
+    <div class="sample-card">
+      <span class="sample-tag">FADS1 · rs174546</span>
+      <h3>Reduced omega-3 conversion</h3>
+      <p>Your variant reduces your ability to convert plant-based ALA into EPA and DHA. Flaxseed isn't enough — you need pre-formed omega-3s from fish or algae oil.</p>
     </div>
-
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta-section">
-  <span class="section-label">Get Started</span>
-  <h2>The answers were always<br>in your <em>data</em></h2>
-  <p>Join thousands who have turned their forgotten DNA files into actionable health intelligence.</p>
-  <div class="cta-actions">
-    <a href="#pricing" class="btn-primary">Choose a Report — from $49</a>
+<div class="gold-line"></div>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <p class="section-label">Get Started</p>
+  <h2 class="section-title">Stop guessing what to take.<br>Your DNA already knows.</h2>
+  <p class="section-sub">One report. One payment. Everything your genome has to say about your nutrition and supplements.</p>
+  <div class="final-price-block">
+    <span class="big-price">$49</span>
+    <span class="one-time">One-time · No subscription</span>
   </div>
+  <br>
+  <a href="#" class="btn-primary" onclick="startCheckout(event)">Get My Report Now</a>
+  <p class="final-note">
+    PDF delivered to your inbox within 5 minutes · Secure payment via Stripe<br>
+    Your raw DNA file is permanently deleted the moment your report is sent<br>
+    For educational purposes only · Not medical advice
+  </p>
 </section>
-
-<div class="section-divider"></div>
-
-<!-- FAQ -->
-<section class="faq-section" id="faq">
-  <div class="section-header">
-    <span class="section-label">FAQ</span>
-    <h2>Common <em>questions</em></h2>
-  </div>
-
-  <div class="faq-item open">
-    <div class="faq-q">Which DNA testing kits are compatible?<span class="faq-toggle">+</span></div>
-    <div class="faq-a">HelixIQ works with raw data files from 23andMe and AncestryDNA. After completing your DNA test, simply download your raw data file from your account settings — it's a .txt file — and upload it to us after purchase.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">How do you protect my genetic data?<span class="faq-toggle">+</span></div>
-    <div class="faq-a">Your raw DNA file is used solely to generate your report and is permanently deleted immediately after processing. We never store, sell, or share your genetic data with any third parties. Your privacy is non-negotiable.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">How quickly will I receive my report?<span class="faq-toggle">+</span></div>
-    <div class="faq-a">Most reports are generated and delivered to your inbox within 2–5 minutes of uploading your file. In rare cases of high demand, delivery may take up to 15 minutes.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">Is this a medical diagnosis?<span class="faq-toggle">+</span></div>
-    <div class="faq-a">No. HelixIQ reports are for educational and informational purposes only. They are not a substitute for professional medical advice, diagnosis, or treatment. We strongly recommend consulting a qualified healthcare professional before making any health-related decisions based on your report.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">What format is the report delivered in?<span class="faq-toggle">+</span></div>
-    <div class="faq-a">Your report is delivered as a professionally formatted PDF to the email address you provide at checkout. The Full Genome Report typically runs 40–60 pages; individual reports are 15–25 pages each.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">Can I purchase multiple reports separately?<span class="faq-toggle">+</span></div>
-    <div class="faq-a">Yes. Each report is sold individually. However, the Full Genome Report ($149) provides better value than purchasing all three individual reports ($177 combined) and includes additional analysis not available elsewhere.</div>
-  </div>
-</section>
-
-<!-- DISCLAIMER BAR -->
-<div class="disclaimer-bar">
-  <p>⚠ HelixIQ reports are generated for educational and informational purposes only. They are not intended to diagnose, treat, cure, or prevent any disease or medical condition, and do not constitute medical advice. Always consult a qualified healthcare professional before making any health-related decisions. Genetic predispositions do not determine health outcomes.</p>
-</div>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">HelixIQ</div>
-  <div class="footer-links">
+  <div class="logo" style="font-size:1rem;">Helix<span style="color:var(--paper);font-family:'Instrument Sans',sans-serif;font-weight:400;">IQ</span></div>
+  <div style="display:flex;gap:24px;">
     <a href="#">Privacy Policy</a>
-    <a href="#">Terms of Service</a>
-    <a href="#">Contact</a>
-    <a href="#">Refund Policy</a>
+    <a href="#">Terms</a>
+    <a href="mailto:support@myhelixiq.com">support@myhelixiq.com</a>
   </div>
-  <div class="footer-copy">© 2025 HelixIQ. All rights reserved.</div>
+  <div>© 2025 HelixIQ</div>
 </footer>
 
 <script>
-  // FAQ accordion
-  document.querySelectorAll('.faq-item').forEach(item => {
-    item.querySelector('.faq-q').addEventListener('click', () => {
-      const isOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
+async function startCheckout(e) {
+  e.preventDefault();
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ packageKey: 'nutrition', email: '' })
     });
-  });
-
-  // Checkout handler
-  async function handleCheckout(e, packageKey) {
-    e.preventDefault();
-    const btn = e.currentTarget;
-    const originalText = btn.textContent;
-    btn.textContent = 'Processing...';
-    btn.style.pointerEvents = 'none';
-    try {
-      const res = await fetch('/api/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ packageKey })
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'Failed to create checkout session');
-      }
-    } catch (err) {
-      alert('Something went wrong. Please try again.');
-      btn.textContent = originalText;
-      btn.style.pointerEvents = '';
-    }
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else alert('Something went wrong. Please try again.');
+  } catch {
+    alert('Something went wrong. Please try again.');
   }
-
-  // Scroll-based nav opacity
-  const nav = document.querySelector('nav');
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 60) {
-      nav.style.background = 'rgba(10,10,15,0.97)';
-    } else {
-      nav.style.background = 'linear-gradient(to bottom, rgba(10,10,15,0.95) 0%, transparent 100%)';
-    }
-  });
+}
 </script>
+
 </body>
 </html>
