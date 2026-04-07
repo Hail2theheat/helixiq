@@ -230,8 +230,6 @@ app.post("/api/create-checkout", express.json(), async (req, res) => {
   };
 
   try {
-    console.log('BASE_URL:', process.env.BASE_URL);
-    console.log('Stripe checkout params:', JSON.stringify(checkoutParams, null, 2));
     const session = await stripe.checkout.sessions.create(checkoutParams);
 
     // Store pending order
@@ -243,10 +241,7 @@ app.post("/api/create-checkout", express.json(), async (req, res) => {
 
     res.json({ url: session.url });
   } catch (err) {
-    console.error("Stripe error message:", err.message);
-    console.error("Stripe error type:", err.type);
-    console.error("Stripe error full:", err);
-    console.error("Params sent:", JSON.stringify(checkoutParams, null, 2));
+    console.error("Stripe checkout error:", err.message);
     res.status(500).json({ error: "Failed to create checkout session" });
   }
 });
@@ -365,8 +360,6 @@ app.post(
     // Process report generation asynchronously
     (async () => {
       try {
-        console.log(`[${sessionId}] Starting report generation for ${customerEmail} (${packageKey})`);
-
         // Generate report via Claude API
         const aiResponse = await anthropic.messages.create({
           model: "claude-opus-4-5",
@@ -379,7 +372,6 @@ app.post(
             },
           ],
         });
-        console.log(`[${sessionId}] Claude API call succeeded (${aiResponse.content[0].text.length} chars)`);
 
         // Generate PDF
         const pdfBuffer = await generatePDF(
@@ -388,7 +380,6 @@ app.post(
           customerEmail,
           packageKey
         );
-        console.log(`[${sessionId}] PDF generated (${pdfBuffer.length} bytes)`);
 
         // Send email with PDF attachment
         const emailHtml = `
@@ -415,7 +406,6 @@ app.post(
             disposition: 'attachment'
           }]
         });
-        console.log(`[${sessionId}] Email sent to ${customerEmail}`);
 
         // Mark order as complete
         const order = pendingOrders.get(sessionId);
@@ -424,10 +414,8 @@ app.post(
           pendingOrders.set(sessionId, order);
         }
 
-        console.log(`[${sessionId}] Report fully delivered to ${customerEmail}`);
       } catch (err) {
-        console.error(`[${sessionId}] Background report generation error:`, err.message);
-        console.error(`[${sessionId}] Full error:`, err);
+        console.error(`[${sessionId}] Report generation failed for ${customerEmail}:`, err.message);
       }
     })();
   }
